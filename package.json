@@ -4,22 +4,157 @@
   "description": "Snippet Collections",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.71.0"
+    "vscode": "^1.70.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [
+    "onView:snippet-cat-view",
     "onCommand:snippet-cat.helloWorld"
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "snippetCat",
+          "title": "Snippet Cat",
+          "icon": "media/dep.svg"
+        }
+      ]
+    },
+    "views": {
+      "snippetCat": [
+        {
+          "id": "snippet-cat-view",
+          "name": "片段管理器",
+          "icon": "media/dep.svg",
+          "contextualTitle": "Explorer"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "snippet-cat.helloWorld",
-        "title": "Hello World"
+        "command": "snippet-cat.search",
+        "title": "Search",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/search.svg",
+          "dark": "media/icons/interface/dark/search.svg"
+        }
+      },
+      {
+        "command": "snippet-cat.refresh",
+        "title": "Refresh",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/refresh.svg",
+          "dark": "media/icons/interface/dark/refresh.svg"
+        }
+      },
+    
+      {
+        "command": "snippet-cat.addGroup",
+        "title": "Add Group",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/add.svg",
+          "dark": "media/icons/interface/dark/add.svg"
+        }
+      },
+      {
+        "command": "snippet-cat.editGroup",
+        "title": "Edit Group",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/edit.svg",
+          "dark": "media/icons/interface/dark/edit.svg"
+        }
+      },
+      {
+        "command": "snippet-cat.deleteGroup",
+        "title": "Delete Group",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/delete.svg",
+          "dark": "media/icons/interface/dark/delete.svg"
+        }
+      },
+      {
+        "command": "snippet-cat.addSnippet",
+        "title": "Add Snippet",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/add.svg",
+          "dark": "media/icons/interface/dark/add.svg"
+        }
+      },
+      {
+        "command": "snippet-cat.deleteSnippet",
+        "title": "Delete Snippet",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/delete.svg",
+          "dark": "media/icons/interface/dark/delete.svg"
+        }
+      },
+      {
+        "command": "snippet-cat.editSnippet",
+        "title": "Edit Snippet",
+        "category": "Snippet Cat",
+        "icon": {
+          "light": "media/icons/interface/light/edit.svg",
+          "dark": "media/icons/interface/dark/edit.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "snippet-cat.search",
+          "when": "view == snippet-cat-view",
+          "group": "navigation"
+        },
+        {
+          "command": "snippet-cat.addGroup",
+          "when": "view == snippet-cat-view",
+          "group": "navigation"
+        },
+        {
+          "command": "snippet-cat.refresh",
+          "when": "view == snippet-cat-view",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "snippet-cat.addSnippet",
+          "when": "view == snippet-cat-view && viewItem == Group",
+          "group": "inline@1"
+        },
+        {
+          "command": "snippet-cat.editGroup",
+          "when": "view == snippet-cat-view && viewItem == Group",
+          "group": "inline@2"
+        },
+        {
+          "command": "snippet-cat.deleteGroup",
+          "when": "view == snippet-cat-view && viewItem == Group",
+          "group": "inline@3"
+        },
+        {
+          "command": "snippet-cat.deleteSnippet",
+          "when": "view == snippet-cat-view && viewItem == Snippet",
+          "group": "inline"
+        },
+        {
+          "command": "snippet-cat.editSnippet",
+          "when": "view == snippet-cat-view && viewItem == Snippet",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
