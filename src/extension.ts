@@ -20,13 +20,9 @@ export function activate(context: vscode.ExtensionContext) {
   let treeProvider = new TreeProvider(stockRoot);
   let catView = vscode.window.createTreeView('snippet-cat-view',{ treeDataProvider: treeProvider, showCollapseAll: true });
 
-  
   treeProvider.setTreeView(catView);
 
 
-
-
-  
   context.subscriptions.push(
 
     vscode.commands.registerCommand('snippet-cat.click', (path) => treeProvider.click(path)),

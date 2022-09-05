@@ -1,7 +1,12 @@
-import * as fs from 'fs';
-import * as path from 'path';
-let p = `E:\\Project\\snippet-cat\\media\\icons\\files\\dark\\wxml.svg`;
-
-if (!fs.existsSync(p)) {
-  console.log(111);
+function * test(v){
+  console.log(v);
+  let value1 = yield 1;
+  console.log(value1);
+  let value2 =  yield 2;
+  console.log(value2);
 }
+
+var iteration = test("one");
+
+console.log(iteration.next("two"));
+console.log(iteration.next("three"));

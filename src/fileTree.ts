@@ -58,34 +58,6 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
     const resFolder = fs.readdirSync(stogeFolder);
 
 
-    var fs = require('fs');
-    var path = require('path');
-    var walk = function (dir: any, done: { (err: any, res: any): void; (arg0: null, arg1: any[] | undefined): any; }) {
-      var results: any[] = [];
-      fs.readdir(dir, function (err: any, list: any[]) {
-        if (err) {return done(null,err);}
-        var i = 0;
-        (function next() {
-          var file = list[i++];
-          if (!file) {return done(null, results);};
-          file = path.resolve(dir, file);
-          fs.stat(file, function (err: any, stat: { isDirectory: () => any; }) {
-            if (stat && stat.isDirectory()) {
-              walk(file, function (err: any, res: any) {
-                results = results.concat(res);
-                next();
-              });
-            } else {
-              results.push(file);
-              next();
-            }
-          });
-        })();
-      });
-    };
-
-    walk();
-
     console.log(element);
 
     const toDep = (fileName: string, fullPath: string, isFolder: boolean): SnippetItem | null => {
@@ -238,23 +210,6 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
     const directoryItems = await client.getDirectoryContents("/");
 
     console.log(directoryItems);
-
-
-    const { unlink, readdir, stat, rmdir } = require('fs').promises;
-
-    async function preParellDeep(dir: string) {
-      const statObj = await stat(dir);
-      if (statObj.isFile()) {
-        await unlink(dir);
-      } else {
-        let dirs = await readdir(dir);
-        dirs = dirs.map((item: string) => preParellDeep(path.join(dir, item)));
-        await Promise.all(dirs);
-        await rmdir(dir);
-      };
-
-    }
-    preParellDeep(this.stockRoot);
   }
 
   async addGroup(e: any) {
