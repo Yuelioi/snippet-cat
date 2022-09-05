@@ -28,6 +28,14 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
     return element;
   }
 
+  get parent(): SnippetItem | undefined | null {
+    return this._parent;
+  }
+
+  get children(): SnippetItem[] {
+    return this._children;
+  }
+
 
 
   getChildren(element?: SnippetItem): Thenable<SnippetItem[]> {
@@ -39,16 +47,97 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
 
     if (element) {
       return Promise.resolve(
-        this.getDepsFolder(element.fullPath)
+        this.getDepsFolder(element.fullPath, element)
       );
     } else {
-      return Promise.resolve(this.getDepsFolder(this.stockRoot));
+      return Promise.resolve(this.getDepsFolder(this.stockRoot, element));
     }
   }
 
-  private getDepsFolder(stogeFolder: string): SnippetItem[] {
+  private getDepsFiles(stogeFolder: string, element: any): SnippetItem[] {
+    const resFolder = fs.readdirSync(stogeFolder);
+
+
+    var fs = require('fs');
+    var path = require('path');
+    var walk = function (dir: any, done: { (err: any, res: any): void; (arg0: null, arg1: any[] | undefined): any; }) {
+      var results: any[] = [];
+      fs.readdir(dir, function (err: any, list: any[]) {
+        if (err) {return done(null,err);}
+        var i = 0;
+        (function next() {
+          var file = list[i++];
+          if (!file) {return done(null, results);};
+          file = path.resolve(dir, file);
+          fs.stat(file, function (err: any, stat: { isDirectory: () => any; }) {
+            if (stat && stat.isDirectory()) {
+              walk(file, function (err: any, res: any) {
+                results = results.concat(res);
+                next();
+              });
+            } else {
+              results.push(file);
+              next();
+            }
+          });
+        })();
+      });
+    };
+
+    walk();
+
+    console.log(element);
+
+    const toDep = (fileName: string, fullPath: string, isFolder: boolean): SnippetItem | null => {
+      if (isFolder) {
+        return new SnippetItem(
+          fullPath,
+          fileName,
+          "folder",
+          "Group",
+          vscode.TreeItemCollapsibleState.Collapsed
+        );
+      } else {
+        let ext = fileName.split(".");
+        let icon;
+        if (ext.length === 1) {
+          icon = "file";
+        } else {
+          icon = ext[ext.length - 1];
+        }
+        return new SnippetItem(fullPath, fileName, icon, "Snippet", vscode.TreeItemCollapsibleState.None);
+      }
+    };
+
+    let _this = this;
+    let lists: SnippetItem[] = [];
+    let folderLoop: { fileName: string; fullPath: string; isFolder: boolean; }[] = [];
+    let fileLoop: { fileName: string; fullPath: string; isFolder: boolean; }[] = [];
+
+    resFolder.forEach(function (fileName: any) {
+      let fullPath = path.resolve(stogeFolder, fileName);
+      let isFolder = _this.folderExists(fullPath);
+      if (isFolder) {
+        folderLoop.push({ fileName, fullPath, isFolder: true });
+      } else {
+        fileLoop.push({ fileName, fullPath, isFolder: false });
+      }
+    });
+
+    folderLoop.concat(fileLoop).forEach(ele => {
+      let { fileName, fullPath, isFolder } = ele;
+      let currentItem = toDep(fileName, fullPath, isFolder);
+      lists.push(currentItem);
+    });
+
+    return lists;
+  }
+
+  private getDepsFolder(stogeFolder: string, element: any): SnippetItem[] {
 
     const resFolder = fs.readdirSync(stogeFolder);
+
+    console.log(element);
 
     const toDep = (fileName: string, fullPath: string, isFolder: boolean): SnippetItem => {
       if (isFolder) {
@@ -88,7 +177,8 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
 
     folderLoop.concat(fileLoop).forEach(ele => {
       let { fileName, fullPath, isFolder } = ele;
-      lists.push(toDep(fileName, fullPath, isFolder));
+      let currentItem = toDep(fileName, fullPath, isFolder);
+      lists.push(currentItem);
     });
 
     return lists;
@@ -98,7 +188,8 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
 
   getParent(e: SnippetItem) {
     console.log(e);
-    return this._parent;
+    return null;
+    // return e.parent;
   }
 
 
@@ -116,10 +207,10 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
 
   }
   async search(element: any) {
-    console.log(element);
+
     this.tree.reveal(element, { select: true, focus: true, expand: true });
   }
-  async remote() {
+  async upload() {
 
     const client = createClient(
       "https://drive.yuelili.com/dav",
@@ -134,10 +225,47 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
     console.log(directoryItems);
   }
 
-  async addGroup() {
+  async download() {
+
+    const client = createClient(
+      "https://drive.yuelili.com/dav",
+      {
+        username: "435826135@qq.com",
+        password: "VqhY6VQNGLAg8tYitfebxrI02srnqrWr"
+      }
+    );
+
+    const directoryItems = await client.getDirectoryContents("/");
+
+    console.log(directoryItems);
+
+
+    const { unlink, readdir, stat, rmdir } = require('fs').promises;
+
+    async function preParellDeep(dir: string) {
+      const statObj = await stat(dir);
+      if (statObj.isFile()) {
+        await unlink(dir);
+      } else {
+        let dirs = await readdir(dir);
+        dirs = dirs.map((item: string) => preParellDeep(path.join(dir, item)));
+        await Promise.all(dirs);
+        await rmdir(dir);
+      };
+
+    }
+    preParellDeep(this.stockRoot);
+  }
+
+  async addGroup(e: any) {
+
+    this.getDepsFolder(e.fullPath, e);
+
+    let filePath = e ? e.fullPath : this.stockRoot;
+
     let res = await this.getUserInput("请输入文件夹名", "", [0, 0]);
     if (res) {
-      fs.mkdir(path.join(this.stockRoot, res), (err) => {
+      fs.mkdir(path.join(filePath, res), (err) => {
         if (err) {
           this.logError(err);
         }
@@ -168,7 +296,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
 
   }
   async openGroup(e: any) {
-    console.log(e.fullPath);
+
     vscode.commands.executeCommand("revealFileInOS", e.fullPath);
   }
 
@@ -191,13 +319,13 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem>{
 
   }
   async editSnippet(e: any) {
-    console.log(this.getParent(e));
+
     let endPos = e.fileName.length;
     if (!(e.icon === "file")) {
       endPos = e.fileName.length - e.icon.length - 1;
     }
 
-    console.log(e);
+
     let res = await this.getUserInput("请输入新文件名", e.label, [0, endPos]);
     if (res) {
       fs.rename(e.fullPath, path.join(e.fullPath, '..', res), (err) => {
@@ -250,7 +378,7 @@ class SnippetItem extends vscode.TreeItem {
     private fileName: string,
     private icon: string,
     private fileType: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
   ) {
     super(fullPath, collapsibleState);
     this.label = this.fileName;

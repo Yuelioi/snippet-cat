@@ -42,10 +42,16 @@
         "icon": "$(search)"
       },
       {
-        "command": "snippet-cat.remote",
-        "title": "Remote",
+        "command": "snippet-cat.download",
+        "title": "Download",
         "category": "Snippet Cat",
         "icon": "$(cloud-download)"
+      },
+      {
+        "command": "snippet-cat.upload",
+        "title": "Upload",
+        "category": "Snippet Cat",
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "snippet-cat.refresh",
@@ -99,24 +105,29 @@
     "menus": {
       "view/title": [
         {
-          "command": "snippet-cat.remote",
+          "command": "snippet-cat.download",
           "when": "view == snippet-cat-view",
-          "group": "navigation"
+          "group": "navigation@3"
+        },
+        {
+          "command": "snippet-cat.upload",
+          "when": "view == snippet-cat-view",
+          "group": "navigation@4"
         },
         {
           "command": "snippet-cat.search",
           "when": "view == snippet-cat-view",
-          "group": "navigation"
+          "group": "navigation@2"
         },
         {
           "command": "snippet-cat.addGroup",
           "when": "view == snippet-cat-view",
-          "group": "navigation"
+          "group": "navigation@1"
         },
         {
           "command": "snippet-cat.refresh",
           "when": "view == snippet-cat-view",
-          "group": "navigation"
+          "group": "navigation@5"
         }
       ],
       "view/item/context": [
@@ -126,19 +137,24 @@
           "group": "inline@1"
         },
         {
-          "command": "snippet-cat.editGroup",
+          "command": "snippet-cat.addGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
           "group": "inline@2"
+        },
+        {
+          "command": "snippet-cat.editGroup",
+          "when": "view == snippet-cat-view && viewItem == Group",
+          "group": "inline@3"
         },
         {
           "command": "snippet-cat.openGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
-          "group": "inline@2"
+          "group": "inline@4"
         },
         {
           "command": "snippet-cat.deleteGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
-          "group": "inline@3"
+          "group": "inline@5"
         },
         {
           "command": "snippet-cat.editSnippet",

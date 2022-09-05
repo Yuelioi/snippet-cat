@@ -31,7 +31,8 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('snippet-cat.click', (path) => treeProvider.click(path)),
 
-    vscode.commands.registerCommand('snippet-cat.remote', treeProvider.remote.bind(treeProvider)),
+    vscode.commands.registerCommand('snippet-cat.upload', treeProvider.upload.bind(treeProvider)),
+    vscode.commands.registerCommand('snippet-cat.download', treeProvider.download.bind(treeProvider)),
     vscode.commands.registerCommand('snippet-cat.refresh', treeProvider.refresh.bind(treeProvider)),
     vscode.commands.registerCommand('snippet-cat.search', treeProvider.search.bind(treeProvider)),
 
