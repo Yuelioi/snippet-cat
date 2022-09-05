@@ -11,7 +11,8 @@ export function activate(context: vscode.ExtensionContext) {
   // 	? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
 
-  const stockRoot = "E:\\Project\\Snippet Cat";
+  // const stockRoot = "E:\\Project\\Snippet Cat";
+  const stockRoot = "H:\\Snippets\\Snippet Cat";
 
   // let treeProvider = new TreeProvider(stockRoot);
   // let catView =  vscode.window.createTreeView('snippet-cat-view', { treeDataProvider: new TreeProvider(stockRoot), showCollapseAll: true });
@@ -26,6 +27,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
 
     vscode.commands.registerCommand('snippet-cat.click', (path) => treeProvider.click(path)),
+
+    vscode.commands.registerCommand('snippet-cat.viewSwitch', treeProvider.viewSwitch.bind(treeProvider)),
 
     vscode.commands.registerCommand('snippet-cat.upload', treeProvider.upload.bind(treeProvider)),
     vscode.commands.registerCommand('snippet-cat.download', treeProvider.download.bind(treeProvider)),

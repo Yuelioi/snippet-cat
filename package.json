@@ -42,6 +42,12 @@
         "icon": "$(search)"
       },
       {
+        "command": "snippet-cat.viewSwitch",
+        "title": "Switch View",
+        "category": "Snippet Cat",
+        "icon": "$(testing-show-as-list-icon)"
+      },
+      {
         "command": "snippet-cat.download",
         "title": "Download",
         "category": "Snippet Cat",
@@ -105,6 +111,11 @@
     "menus": {
       "view/title": [
         {
+          "command": "snippet-cat.viewSwitch",
+          "when": "view == snippet-cat-view",
+          "group": "navigation@6"
+        },
+        {
           "command": "snippet-cat.download",
           "when": "view == snippet-cat-view",
           "group": "navigation@3"
@@ -126,8 +137,8 @@
         },
         {
           "command": "snippet-cat.refresh",
-          "when": "view == snippet-cat-view",
-          "group": "navigation@5"
+          "when": "view == snippet-cat-view"
+  
         }
       ],
       "view/item/context": [
