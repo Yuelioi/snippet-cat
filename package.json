@@ -6,6 +6,7 @@
   "engines": {
     "vscode": "^1.70.0"
   },
+
   "categories": [
     "Other"
   ],
@@ -165,17 +166,17 @@
         {
           "command": "snippet-cat.deleteGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
-          "group": "inline@5"
+          "group": "inline@10"
         },
         {
           "command": "snippet-cat.editSnippet",
           "when": "view == snippet-cat-view && viewItem == Snippet",
-          "group": "inline"
+          "group": "inline@1"
         },
         {
           "command": "snippet-cat.deleteSnippet",
           "when": "view == snippet-cat-view && viewItem == Snippet",
-          "group": "inline"
+          "group": "inline@10"
         }
   
       ]
