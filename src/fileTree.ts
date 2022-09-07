@@ -15,6 +15,12 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   public _folderView: boolean;
   public treeList: SnippetItem[];
 
+  private _onDidChangeTreeData: vscode.EventEmitter<SnippetItem | undefined | null | void> = new vscode.EventEmitter<
+  SnippetItem | undefined | null | void
+>();
+readonly onDidChangeTreeData: vscode.Event<SnippetItem | undefined | null | void> = this._onDidChangeTreeData.event;
+
+
   constructor(private stockRoot: string) {
     this._onDidChangeTreeData = new vscode.EventEmitter();
     this.onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -23,6 +29,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     this.tree;
     this._children = [];
     this._folderView = true;
+
   }
   public setTreeView(element: any) {
     this.tree = element;
@@ -37,6 +44,10 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
   get children(): SnippetItem[] {
     return this._children;
+  }
+
+  refresh(): void {
+    this._onDidChangeTreeData.fire();
   }
 
   getChildren(element?: SnippetItem): Thenable<SnippetItem[]> {
@@ -62,7 +73,13 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
     this.getDepsFiles(folderPath);
     return this.treeList;
+  }
 
+  private folderExists(p: string): boolean {
+    if (fs.lstatSync(p).isDirectory()) {
+      return true;
+    }
+    return false;
   }
 
   getDepsFiles(folderPath: string) {
@@ -91,9 +108,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   }
 
   getParent(e: SnippetItem) {
-    console.log(e);
     return null;
-    // return e.parent;
   }
 
   getSelection() {
@@ -106,15 +121,17 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     this.refresh();
   }
 
-  async click(filePath: any) {
+  click(filePath: any) {
     var openPath = vscode.Uri.parse("file:///" + filePath.split(`\\`).join(`/`)); //A request file path
     vscode.workspace.openTextDocument(openPath).then(doc => {
       vscode.window.showTextDocument(doc);
     });
   }
-  async search(element: any) {
+
+  search(element: any) {
     this.tree.reveal(element, { select: true, focus: true, expand: true });
   }
+
   async upload() {
     const client = createClient("https://drive.yuelili.com/dav", {
       username: "435826135@qq.com",
@@ -138,142 +155,72 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   }
 
 
-  async getUserInput(placeHolder: string, value: string, range: [number, number]) {
-    let key = await vscode.window.showInputBox({ placeHolder: placeHolder, value: value, valueSelection: range });
-    if (key) {
-      return key;
-    }
-    return "";
-  }
-
-  logInfo(message: string) {
-    vscode.window.showInformationMessage(message);
-  }
-  logError(err: NodeJS.ErrnoException | any) {
-    console.error(err);
-    vscode.window.showErrorMessage(err.toString());
-  }
 
 
+  async * handleSnippets(...args: any[]): any {
+    let [placeHolder, value, valueSelection] = args;
+    let key = await vscode.window.showInputBox({ placeHolder: placeHolder, value: value, valueSelection: valueSelection });
 
-
-  async * handleSnippets( ):any {
-
-    let args = yield;
-
-    let key = await vscode.window.showInputBox(args);
-
-    let arg2 = yield key;
-
-    // console.log(arg2);
-    // if (key) {
-    //   let arg1 = arg1Ext ? path.join(filePath, arg1Ext, key) : path.join(filePath, key);
-    //   deelFunction(arg1, ...args, (err: any) => {
-    //     if (err) {
-    //       this.logError(err);
-    //     }
-    //   });
-    // }
-    // this.refresh();
-  }
-
-
-  async addGroup(e: any) {
-    let filePath = e ? e.fullPath : this.stockRoot;
-
-    let iter = this.handleSnippets();
-
-    iter.next() ;
-    console.log( iter.next(["请输入文件夹名", "", [0, 0]]).then()) ;
- 
-    // let key = await this.handleSnippets().next();
-
-    // if (key) {
-    //   fs.mkdir(path.join(filePath, key.value), (err) => {
-    //     if (err) {
-    //       this.logError(err);
-    //     }
-    //   });
-    // }
-    // this.handleSnippets("请输入文件夹名", "", [0, 0]).next();
-  }
-
-  async editGroup(e: any) {
-
-    let res = await this.getUserInput("请输入文件夹名", e.label, [0, 0]);
-
-    if (res) {
-      fs.rename(e.fullPath, path.join(e.fullPath, "..", res), err => {
-        if (err) {
-          this.logError(err);
-        }
+    if (key !== undefined) {
+      let [fun, ...args2] = yield key;
+      fun(...args2, (err: any) => {
+        if (err) { vscode.window.showErrorMessage(err.toString()); }
       });
+      this.refresh();
+    } else {
+      throw new Error("用户未确认");
     }
-    this.refresh();
   }
-  async deleteGroup(e: any) {
 
-    // this.handleSnippets(fs.rmSync, "确认删除", "确认", [0, 2], e.fullPath, false, { recursive: true, force: true });
-    // let res = await this.getUserInput("确认删除", "确认", [0, 2]);
-    // if (res === "确认") {
-    //   fs.rmSync(e.fullPath, { recursive: true, force: true });
-    //   this.logInfo("成功删除");
-    // } else {
-    //   this.logError("删除失败");
-    // }
-    // this.refresh();
-  }
-  async openGroup(e: any) {
+  openGroup(e: any) {
     vscode.commands.executeCommand("revealFileInOS", e.fullPath);
   }
 
-  async addSnippet(e: any) {
-    let res = await this.getUserInput("请输入文件名", "." + e.label, [0, 0]);
-    if (res) {
-      fs.writeFileSync(path.join(e.fullPath, res), "");
-    }
-    this.refresh();
+  addGroup(e: SnippetItem) {
+    let folderPath = e ? e.fullPath : this.stockRoot;
+    let iter = this.handleSnippets("请输入文件夹名", "", [0, 0]);
+    iter.next().then((data: any) => {
+      iter.next([fs.mkdir, path.join(folderPath, data.value)]);
+    }, (err: any) => console.log(err));
   }
-  async deleteSnippet(e: any) {
-    let res = await this.getUserInput("确认删除", "确认", [0, 2]);
-    if (res === "确认") {
-      fs.rmSync(e.fullPath, { recursive: true, force: true });
-      this.logInfo("成功删除");
-    } else {
-      this.logError("删除失败");
-    }
+
+  editGroup(e: SnippetItem) {
+    let iter = this.handleSnippets("请输入文件夹名", e.label, [0, e.label instanceof String ? e.label.length - 1 : 0]);
+    iter.next().then((data: any) => {
+      iter.next([fs.rename, e.fullPath, path.join(e.fullPath, "..", data.value)]);
+    }, (err: any) => console.log(err));
   }
-  async editSnippet(e: any) {
+
+  deleteGroup(e: any) {
+    let iter = this.handleSnippets("确认删除", "确认", [0, 2]);
+    iter.next().then((data: any) => {
+      iter.next([fs.rmSync, e.fullPath, { recursive: true, force: true }]);
+    }, (err: any) => console.log(err));
+  }
+
+  ddSnippet(e: any) {
+    let iter = this.handleSnippets("请输入文件名", "." + e.label, [0, 0]);
+    iter.next().then((data: any) => {
+      iter.next([fs.writeFileSync, path.join(e.fullPath, data.value), ""]);
+    }, (err: any) => console.log(err));
+  }
+
+  deleteSnippet(e: any) {
+    let iter = this.handleSnippets("确认删除", "确认", [0, 2]);
+    iter.next().then((data: any) => {
+      iter.next([fs.rmSync, e.fullPath, { recursive: true, force: true }]);
+    }, (err: any) => console.log(err));
+  }
+
+  editSnippet(e: any) {
     let endPos = e.icon === "file" ? e.fileName.length : e.fileName.length - e.icon.length - 1;
-
-
-    let res = await this.getUserInput("请输入新文件名", e.label, [0, endPos]);
-    if (res) {
-      fs.rename(e.fullPath, path.join(e.fullPath, "..", res), err => {
-        if (err) {
-          this.logError(err);
-        }
-      });
-    }
-  }
-
-  private _onDidChangeTreeData: vscode.EventEmitter<SnippetItem | undefined | null | void> = new vscode.EventEmitter<
-    SnippetItem | undefined | null | void
-  >();
-  readonly onDidChangeTreeData: vscode.Event<SnippetItem | undefined | null | void> = this._onDidChangeTreeData.event;
-
-  refresh(): void {
-    this._onDidChangeTreeData.fire();
+    let iter = this.handleSnippets("请输入新文件名", e.label, [0, endPos]);
+    iter.next().then((data: any) => {
+      iter.next([fs.rename, e.fullPath, path.join(e.fullPath, "..", data.value)]);
+    }, (err: any) => console.log(err));
   }
 
 
-
-  private folderExists(p: string): boolean {
-    if (fs.lstatSync(p).isDirectory()) {
-      return true;
-    }
-    return false;
-  }
 
 
 }
