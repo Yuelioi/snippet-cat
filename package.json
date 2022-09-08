@@ -2,11 +2,12 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.3",
+  "version": "0.0.1",
   "publisher": "yuelili",
   "sponsor": {
     "url": "https://yuelili.com"
   },
+  "icon": "https://github.com/Yuelioi/snippet-cat/blob/main/media/cat.svg",
   "engines": {
     "vscode": "^1.71.0"
   },

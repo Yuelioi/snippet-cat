@@ -196,7 +196,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   async upload() {
 
     let webdavConfig = <any>this.getConfig().get("webdav");
-    console.log(webdavConfig);
+
     let { url, username, password } = webdavConfig;
 
     const client = createClient(url, {
@@ -228,7 +228,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   async download() {
 
     let webdavConfig = <any>this.getConfig().get("webdav");
-    console.log(webdavConfig);
+  
     let { url, username, password } = webdavConfig;
 
     const client = createClient(url, {
@@ -308,7 +308,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
   async addSnippet(e: any) {
     let lastExt = await this.getConfig().get("lastFileExt");
-    console.log(lastExt);
+  
     let iter = this.handleSnippets("请输入文件名", "." + lastExt, [0, 0]);
     iter.next().then(
       (data: any) => {
