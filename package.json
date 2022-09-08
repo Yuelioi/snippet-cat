@@ -2,7 +2,7 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "yuelili",
   "sponsor": {
     "url": "https://yuelili.com"
@@ -29,7 +29,10 @@
         "snippet-cat.sysnModel": {
           "type": "string",
           "default": "webdav",
-          "enum": ["webdav", "github"],
+          "enum": [
+            "webdav",
+            "github"
+          ],
           "enumDescriptions": [
             "使用webdav进行同步,请设置webdav信息",
             "使用github进行同步(开发中...)"
