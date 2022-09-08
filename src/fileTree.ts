@@ -196,9 +196,8 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   async upload() {
 
     let webdavConfig = <any>this.getConfig().get("webdav");
-
     let { url, username, password } = webdavConfig;
-
+    let key = await vscode.window.showInputBox({ placeHolder: "确定上传吗,这将覆盖云端数据", value: "确定上传吗,这将覆盖云端数据", valueSelection: [0, 2] });
     const client = createClient(url, {
       username: username,
       password: password,
@@ -208,9 +207,6 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
       if ((await client.exists("/Snippet Cat")) === false) {
         await client.createDirectory("/Snippet Cat");
       }
-
-      let key = await vscode.window.showInputBox({ placeHolder: "确定上传吗,这将覆盖云端数据", value: "确定上传吗,这将覆盖云端数据", valueSelection: [0, 2] });
-
       if ((await key === "确定上传吗,这将覆盖云端数据")) {
         vscode.window.showInformationMessage("开始上传");
         sync.uploadDepsFiles(this.stockRoot, "/Snippet Cat", client);
@@ -227,10 +223,9 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
   async download() {
 
+    let key = await vscode.window.showInputBox({ placeHolder: "", value: "确定下载吗,这将覆盖本地数据", valueSelection: [0, 2] });
     let webdavConfig = <any>this.getConfig().get("webdav");
-  
     let { url, username, password } = webdavConfig;
-
     const client = createClient(url, {
       username: username,
       password: password,
@@ -238,9 +233,6 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
     try {
       await client.exists("/Snippet Cat");
-
-      let key = await vscode.window.showInputBox({ placeHolder: "", value: "确定下载吗,这将覆盖本地数据", valueSelection: [0, 2] });
-
       if ((await key === "确定下载吗,这将覆盖本地数据")) {
         vscode.window.showInformationMessage("开始下载");
         sync.downloadDepsFiles(this.stockRoot, "/Snippet Cat", client);
