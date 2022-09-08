@@ -16,6 +16,33 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Snippet Cat",
+      "properties": {
+        "snippet-cat.lastFileExt": {
+          "type": "string",
+          "default": "js",
+          "description": "新增代码片段默认文件后缀"
+        },
+        "snippet-cat.tsdk": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "代码片段2"
+        },
+        "snippet-cat.machineID": {
+          "type": "array",
+					"default": [],
+					"items": {
+						"type": "string"
+					},
+					"description": "记录MAC $& STOCK PATH",
+					"scope": "resource"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -65,6 +92,12 @@
         "title": "Refresh",
         "category": "Snippet Cat",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "snippet-cat.addStockPath",
+        "title": "Add Stock Path",
+        "category": "Snippet Cat",
+        "icon": "$(folder-opened)"
       },
       {
         "command": "snippet-cat.addGroup",
@@ -139,7 +172,10 @@
         {
           "command": "snippet-cat.refresh",
           "when": "view == snippet-cat-view"
-  
+        },
+        {
+          "command": "snippet-cat.addStockPath",
+          "when": "view == snippet-cat-view"
         }
       ],
       "view/item/context": [
@@ -178,7 +214,6 @@
           "when": "view == snippet-cat-view && viewItem == Snippet",
           "group": "inline@10"
         }
-  
       ]
     }
   },
@@ -210,6 +245,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "getmac": "^5.20.0",
     "webdav": "^4.11.0"
   }
 }

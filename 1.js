@@ -28,6 +28,8 @@ import { AuthType, createClient } from "webdav";
 import fs from "fs";
 import path from "path";
 
+import child_process from "child_process";
+
 
 const client = createClient(
 
@@ -69,7 +71,7 @@ async function downloadDepsFiles(loaclFolderPath, syncFolderPath) {
       const syncModTime = new Date(syncStuts.lastmod).getTime();
 
       let localModTime = 0;
-      if(fs.existsSync(localFullPath)){
+      if (fs.existsSync(localFullPath)) {
         fs.stat(localFullPath, async (err, stat) => {
           localModTime = stat.mtimeMs;
         });
@@ -77,22 +79,37 @@ async function downloadDepsFiles(loaclFolderPath, syncFolderPath) {
 
       if (localModTime !== syncModTime) {
         const content = await client.getFileContents(syncFullPath, { format: "text" });
-        fs.writeFileSync(localFullPath,content,{encoding: "utf8",flag: "w+",});
+        fs.writeFileSync(localFullPath, content, { encoding: "utf8", flag: "w+", });
       }
 
     } else {
 
       if (!fs.existsSync(localFullPath)) {
-        fs.mkdir(path.join(localFullPath),err=>console.log("文件不存在,已创建"));
-    }
+        fs.mkdir(path.join(localFullPath), err => console.log("文件不存在,已创建"));
+      }
       downloadDepsFiles(localFullPath, syncFullPath);
     }
   });
 }
 
-downloadDepsFiles("H:/Snippets/Snippet Cat", "/Snippet Cat");
+// downloadDepsFiles("H:/Snippets/Snippet Cat", "/Snippet Cat");
+
+// child_process.exec('start "" "c:\\"');
+import getMAC, { isMAC } from 'getmac';
+
+let macID = "PID-" + getMAC().replaceAll(":","");
+
+console.log(macID);
 
 
+
+
+
+
+// Fetch the computer's MAC address for a specific interface
+
+
+// Validate that an address is a MAC address
 
 
 
