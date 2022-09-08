@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { AuthType, createClient, WebDAVClient } from "webdav";
+
 
 
 export async function downloadDepsFiles(loaclFolderPath: string, syncFolderPath: string,client:any) {
@@ -40,14 +40,11 @@ export async function downloadDepsFiles(loaclFolderPath: string, syncFolderPath:
   });
 
   const localItems = fs.readdirSync(loaclFolderPath);
-
-  let diffItems = localItems.filter((x: string) => !syncItems.includes(x));
-
+  const diffItems = localItems.filter((x: string) => !syncItems.includes(x));
 
   diffItems.forEach(async (x: string) => {
     fs.rmSync(path.join(loaclFolderPath, x), { recursive: true, force: true });
   });
-
 
 }
 
@@ -95,9 +92,7 @@ export async function uploadDepsFiles(loaclFolderPath: string, syncFolderPath: s
 
   const syncRes = await client.getDirectoryContents(syncFolderPath);
   const syncItems = syncRes.map((x: any) => x.basename);
-
-  let diffItems = syncItems.filter((x: string) => !localItems.includes(x));
-
+  const diffItems = syncItems.filter((x: string) => !localItems.includes(x));
 
   diffItems.forEach(async (x: string) => {
     await client.deleteFile(syncFolderPath + "/" + x);

@@ -2,17 +2,19 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.70.0"
+  "version": "0.0.2",
+  "publisher": "yuelili",
+  "sponsor": {
+    "url": "https://yuelili.com"
   },
-
+  "engines": {
+    "vscode": "^1.71.0"
+  },
   "categories": [
-    "Other"
+    "Snippets"
   ],
   "activationEvents": [
-    "onView:snippet-cat-view",
-    "onCommand:snippet-cat.helloWorld"
+    "onView:snippet-cat-view"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -24,22 +26,56 @@
           "default": "js",
           "description": "新增代码片段默认文件后缀"
         },
-        "snippet-cat.tsdk": {
-          "type": [
-            "string",
-            "null"
+        "snippet-cat.sysnModel": {
+          "type": "string",
+          "default": "webdav",
+          "enum": ["webdav", "github"],
+          "enumDescriptions": [
+            "使用webdav进行同步,请设置webdav信息",
+            "使用github进行同步(开发中...)"
+          ]
+        },
+        "snippet-cat.webdav": {
+          "type": "object",
+          "default": {
+            "url": "http://xxx",
+            "username": "",
+            "password": ""
+          },
+          "properties": {
+            "url": {
+              "type": "string",
+              "default": "https://",
+              "pattern": "(^http[s]?://)(.+)$",
+              "description": "WebDAV的地址"
+            },
+            "username": {
+              "type": "string",
+              "default": "",
+              "description": ""
+            },
+            "password": {
+              "type": "string",
+              "default": "",
+              "pattern": ""
+            }
+          },
+          "required": [
+            "url",
+            "username",
+            "password"
           ],
-          "default": null,
-          "description": "代码片段2"
+          "additionalProperties": false,
+          "description": "To Setup Proxy"
         },
         "snippet-cat.machineID": {
           "type": "array",
-					"default": [],
-					"items": {
-						"type": "string"
-					},
-					"description": "记录MAC $& STOCK PATH",
-					"scope": "resource"
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "description": "记录MAC $& STOCK PATH",
+          "scope": "resource"
         }
       }
     },
@@ -48,7 +84,7 @@
         {
           "id": "snippetCat",
           "title": "Snippet Cat",
-          "icon": "media/dep.svg"
+          "icon": "media/cat.svg"
         }
       ]
     },
@@ -57,7 +93,7 @@
         {
           "id": "snippet-cat-view",
           "name": "片段管理器",
-          "icon": "media/dep.svg",
+          "icon": "media/cat.svg",
           "contextualTitle": "Explorer"
         }
       ]
@@ -231,7 +267,7 @@
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.1",
-    "@types/node": "16.x",
+    "@types/node": "^16.11.58",
     "@types/vscode": "^1.71.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
@@ -239,6 +275,7 @@
     "eslint": "^8.20.0",
     "glob": "^8.0.3",
     "mocha": "^10.0.0",
+    "nodemon": "^2.0.19",
     "ts-loader": "^9.3.1",
     "typescript": "^4.7.4",
     "webpack": "^5.74.0",
@@ -247,5 +284,15 @@
   "dependencies": {
     "getmac": "^5.20.0",
     "webdav": "^4.11.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yuelioi/snippet-cat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Yuelioi/snippet-cat/issues"
+  },
+  "homepage": "https://github.com/Yuelioi/snippet-cat#readme"
 }

@@ -18,7 +18,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   private _parent: SnippetItem | undefined | null;
   public _folderView: boolean;
   private _onDidChangeTreeData: vscode.EventEmitter<SnippetItem | undefined | null | void> = new vscode.EventEmitter<
-  SnippetItem | undefined | null | void >();
+    SnippetItem | undefined | null | void>();
   public treeList: SnippetItem[];
   private stockRoot: string;
 
@@ -51,7 +51,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     return this._children;
   }
 
-  getConfig(){
+  getConfig() {
     return vscode.workspace.getConfiguration('snippet-cat');
   }
 
@@ -79,8 +79,8 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
 
   async addStockPath() {
-    let [currentMacID, recordID ,recordPath] = this.getStockPath();
-    let recordConfig = <string[]> this.getConfig().get("machineID");
+    let [currentMacID, recordID, recordPath] = this.getStockPath();
+    let recordConfig = <string[]>this.getConfig().get("machineID");
     const options: vscode.OpenDialogOptions = {
       canSelectMany: false,
       openLabel: 'Select',
@@ -191,49 +191,67 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     this.tree.reveal(element, { select: true, focus: true, expand: true });
   }
 
-  
+
 
   async upload() {
-    const client = createClient("https://drive.yuelili.com/dav", {
-      username: "435826135@qq.com",
-      password: "VqhY6VQNGLAg8tYitfebxrI02srnqrWr",
+
+    let webdavConfig = <any>this.getConfig().get("webdav");
+    console.log(webdavConfig);
+    let { url, username, password } = webdavConfig;
+
+    const client = createClient(url, {
+      username: username,
+      password: password,
     });
 
-    if ((await client.exists("/Snippet Cat")) === false) {
-      await client.createDirectory("/Snippet Cat");
+    try {
+      if ((await client.exists("/Snippet Cat")) === false) {
+        await client.createDirectory("/Snippet Cat");
+      }
+
+      let key = await vscode.window.showInputBox({ placeHolder: "确定上传吗,这将覆盖云端数据", value: "确定上传吗,这将覆盖云端数据", valueSelection: [0, 2] });
+
+      if ((await key === "确定上传吗,这将覆盖云端数据")) {
+        vscode.window.showInformationMessage("开始上传");
+        sync.uploadDepsFiles(this.stockRoot, "/Snippet Cat", client);
+        vscode.window.showInformationMessage("上传完毕");
+      } else {
+        vscode.window.showErrorMessage("用户取消上传");
+      }
+      this.refresh();
+    } catch {
+      vscode.window.showInformationMessage("连接出错,请核对webdav设置");
     }
-
-    let key = await vscode.window.showInputBox({ placeHolder: "确定上传吗,这将覆盖云端数据", value: "确定上传吗,这将覆盖云端数据", valueSelection: [0, 2] });
-
-    if ((await key === "确定上传吗,这将覆盖云端数据")) {
-      vscode.window.showInformationMessage("开始上传");
-      sync.uploadDepsFiles(this.stockRoot, "/Snippet Cat", client);
-      vscode.window.showInformationMessage("上传完毕");
-    } else {
-      vscode.window.showInformationMessage("用户取消上传");
-    }
-
-    this.refresh();
   }
 
 
   async download() {
-    const client = createClient("https://drive.yuelili.com/dav", {
-      username: "435826135@qq.com",
-      password: "VqhY6VQNGLAg8tYitfebxrI02srnqrWr",
+
+    let webdavConfig = <any>this.getConfig().get("webdav");
+    console.log(webdavConfig);
+    let { url, username, password } = webdavConfig;
+
+    const client = createClient(url, {
+      username: username,
+      password: password,
     });
 
-    let key = await vscode.window.showInputBox({ placeHolder: "", value: "确定下载吗,这将覆盖本地数据", valueSelection: [0, 2] });
+    try {
+      await client.exists("/Snippet Cat");
 
-    if ((await key === "确定下载吗,这将覆盖本地数据")) {
-      vscode.window.showInformationMessage("开始下载");
-      sync.downloadDepsFiles(this.stockRoot, "/Snippet Cat", client);
-      vscode.window.showInformationMessage("下载完毕");
-    } else {
-      vscode.window.showInformationMessage("用户取消下载");
+      let key = await vscode.window.showInputBox({ placeHolder: "", value: "确定下载吗,这将覆盖本地数据", valueSelection: [0, 2] });
+
+      if ((await key === "确定下载吗,这将覆盖本地数据")) {
+        vscode.window.showInformationMessage("开始下载");
+        sync.downloadDepsFiles(this.stockRoot, "/Snippet Cat", client);
+        vscode.window.showInformationMessage("下载完毕");
+      } else {
+        vscode.window.showInformationMessage("用户取消下载");
+      }
+      this.refresh();
+    } catch (e) {
+      vscode.window.showInformationMessage("连接出错,请核对webdav设置");
     }
-
-    this.refresh();
   }
 
   async *handleSnippets(...args: any[]): any {

@@ -1,12 +1,7 @@
 'use strict';
 
 import * as vscode from 'vscode';
-
-
 import { TreeProvider } from './fileTree';
-
-
-
 
 
 
@@ -15,12 +10,9 @@ export function activate(context: vscode.ExtensionContext) {
   // 	? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
 
-
   let treeProvider = new TreeProvider();
   let catView = vscode.window.createTreeView('snippet-cat-view', { treeDataProvider: treeProvider, showCollapseAll: true });
-
   treeProvider.setTreeView(catView);
-
 
   context.subscriptions.push(
 
