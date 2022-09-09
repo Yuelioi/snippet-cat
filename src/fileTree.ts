@@ -9,7 +9,7 @@ import * as sync from "./utils/sync";
 import getMAC from 'getmac';
 
 /**
- * TODO:可以精剪下函数
+ * 
  */
 export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   tree: any;
@@ -20,19 +20,20 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<SnippetItem | undefined | null | void> = new vscode.EventEmitter<
     SnippetItem | undefined | null | void>();
   public treeList: SnippetItem[];
-  private stockRoot: string;
+  private stockID: number;
 
   readonly onDidChangeTreeData: vscode.Event<SnippetItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
   constructor() {
     this._onDidChangeTreeData = new vscode.EventEmitter();
     this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-    this.stockRoot = "";
     this.treeList = [];
     this.tree;
     this._children = [];
     this._folderView = true;
-    this.getStockPath();
+    this.stockID = -1;
+    this.initStockPath();
+
   }
 
   public setTreeView(element: any) {
@@ -56,31 +57,48 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   }
 
 
-  getStockPath() {
+  initStockPath() {
     let currentMacID = "PID-" + getMAC().replace(/:/g, "");
-    let recordID = 0;
+    let recordID = -1;
     let recordPath = "";
-    let recordConfig = <string[]>this.getConfig().get("machineID");
+    let recordConfig = <string[]>this.getConfig().get("stockPath");
+    const _this = this;
 
     recordConfig.forEach((element: any, index: number) => {
+
       if (element.split("|")[0] === currentMacID) {
-        recordID = index;
-        this.stockRoot = recordPath = element.split("|")[1];
+        _this.stockID = recordID = index;
+        recordPath = element.split("|")[1];
       }
     });
 
-    recordConfig.forEach((element: any, index: number) => {
-      if (element === "") {
-        recordID = index;
+
+    if (recordID === -1) {
+      recordConfig.forEach((element: any, index: number) => {
+        if (element === "") {
+          recordID = index;
+        }
+      });
+      if (recordID === -1) {
+        recordID = 0;
       }
-    });
+    }
+
     return [currentMacID, recordID, recordPath];
   }
 
+  getStockPath() {
+    if (this.stockID !== -1) {
+      const stockConfig = <string[]>this.getConfig().get("stockPath");
+      return stockConfig[this.stockID].split("|")[1];
+    } else {
+      return "";
+    }
+  }
 
   async addStockPath() {
-    let [currentMacID, recordID, recordPath] = this.getStockPath();
-    let recordConfig = <string[]>this.getConfig().get("machineID");
+    let [currentMacID, recordID, recordPath] = this.initStockPath();
+    let recordConfig = <string[]>this.getConfig().get("stockPath");
     const options: vscode.OpenDialogOptions = {
       canSelectMany: false,
       openLabel: 'Select',
@@ -90,9 +108,9 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
     await vscode.window.showOpenDialog(options).then(fileUri => {
       if (fileUri && fileUri[0]) {
-        this.stockRoot = recordPath = fileUri[0].fsPath;
-        recordConfig[<number>recordID] = currentMacID + "|" + recordPath;
-        vscode.workspace.getConfiguration('snippet-cat').update("machineID",
+        recordConfig[<number>recordID] = currentMacID + "|" + fileUri[0].fsPath;
+        this.stockID = <number>recordID;
+        this.getConfig().update("stockPath",
           recordConfig
           , vscode.ConfigurationTarget.Global).then(() => {
           });
@@ -102,7 +120,6 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
       }
     });
 
-
   }
 
   refresh(): void {
@@ -110,27 +127,24 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   }
 
   getChildren(element?: SnippetItem): Thenable<SnippetItem[]> {
-    if (!this.stockRoot) {
-      vscode.window.showInformationMessage("未定义储存路径");
-      return Promise.resolve([]);
-    }
+    this.checkRoot();
 
     if (this._folderView) {
       if (element) {
         return Promise.resolve(this.getFileView(element.fullPath));
       } else {
-        return Promise.resolve(this.getFileView(this.stockRoot));
+        return Promise.resolve(this.getFileView(this.getStockPath()));
       }
     }
-    return Promise.resolve(this.getFileView(this.stockRoot));
+    return Promise.resolve(this.getFileView(this.getStockPath()));
   }
 
-  getFileView(folderPath: string): SnippetItem[] {
+  getFileView(stockPath: string): SnippetItem[] {
     if (this._folderView) {
-      return this.getDepsFiles(folderPath);
+      return this.getDepsFiles(stockPath);
     }
 
-    this.getDepsFiles(folderPath);
+    this.getDepsFiles(stockPath);
     return this.treeList;
   }
 
@@ -145,24 +159,30 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     const resFolder = fs.readdirSync(folderPath);
     let tree: SnippetItem[] = [];
     let _this = this;
-    resFolder.forEach(function (fileName: any) {
+
+    const folderList = resFolder.filter(fileName => _this.folderExists(path.resolve(folderPath, fileName)));
+    const fileList = resFolder.filter((x: string) => !folderList.includes(x));
+
+    folderList.forEach(function (fileName: any) {
       let fullPath = path.resolve(folderPath, fileName);
-      let isFolder = _this.folderExists(fullPath);
-      if (!isFolder) {
-        let ext = fileName.split(".");
-        let icon = ext.length === 1 ? "file" : ext[ext.length - 1];
-        if (_this._folderView) {
-          tree.push(new SnippetItem(fullPath, fileName, icon, "Snippet", vscode.TreeItemCollapsibleState.None));
-        } else {
-          _this.treeList.push(new SnippetItem(fullPath, fileName, icon, "Snippet", vscode.TreeItemCollapsibleState.None));
-        }
+      if (_this._folderView) {
+        tree.push(new SnippetItem(fullPath, fileName, "folder", "Group", vscode.TreeItemCollapsibleState.Collapsed));
+      }
+      _this.getDepsFiles(fullPath);
+
+    });
+
+    fileList.forEach(function (fileName: any) {
+      let fullPath = path.resolve(folderPath, fileName);
+      let ext = fileName.split(".");
+      let icon = ext.length === 1 ? "file" : ext[ext.length - 1];
+      if (_this._folderView) {
+        tree.push(new SnippetItem(fullPath, fileName, icon, "Snippet", vscode.TreeItemCollapsibleState.None));
       } else {
-        if (_this._folderView) {
-          tree.push(new SnippetItem(fullPath, fileName, "folder", "Group", vscode.TreeItemCollapsibleState.Collapsed));
-        }
-        _this.getDepsFiles(fullPath);
+        _this.treeList.push(new SnippetItem(fullPath, fileName, icon, "Snippet", vscode.TreeItemCollapsibleState.None));
       }
     });
+
     return tree;
   }
 
@@ -191,58 +211,91 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     this.tree.reveal(element, { select: true, focus: true, expand: true });
   }
 
+  checkRoot() {
+    if (this.stockID === -1) {
+      throw new Error("请先添加根目录");
+    }
+  }
 
 
   async upload() {
 
-    let webdavConfig = <any>this.getConfig().get("webdav");
-    let { url, username, password } = webdavConfig;
-    let key = await vscode.window.showInputBox({ placeHolder: "确定上传吗,这将覆盖云端数据", value: "确定上传吗,这将覆盖云端数据", valueSelection: [0, 2] });
-    const client = createClient(url, {
-      username: username,
-      password: password,
-    });
+    this.checkRoot();
 
-    try {
-      if ((await client.exists("/Snippet Cat")) === false) {
-        await client.createDirectory("/Snippet Cat");
+    let key = await vscode.window.showInputBox({ placeHolder: "确定上传吗,这将覆盖云端数据", value: "确定上传吗,这将覆盖云端数据", valueSelection: [0, 2] });
+    if (key) {
+
+      const sysnModel = this.getConfig().get("sysnModel");
+
+      if (sysnModel === "github") {
+        let githubConfig = <any>this.getConfig().get("github");
+        let { push } = githubConfig;
+        utils.runCMD(this.getStockPath(), push);
       }
-      if ((await key === "确定上传吗,这将覆盖云端数据")) {
-        vscode.window.showInformationMessage("开始上传");
-        sync.uploadDepsFiles(this.stockRoot, "/Snippet Cat", client);
-        vscode.window.showInformationMessage("上传完毕");
-      } else {
-        vscode.window.showErrorMessage("用户取消上传");
+
+      else if (sysnModel === "webdav") {
+        let webdavConfig = <any>this.getConfig().get("webdav");
+        let { url, username, password } = webdavConfig;
+        const client = createClient(url, {
+          username: username,
+          password: password,
+        });
+
+        try {
+          if ((await client.exists("/Snippet Cat")) === false) {
+            await client.createDirectory("/Snippet Cat");
+          }
+          vscode.window.showInformationMessage("正在使用WEBDAV上传");
+          sync.uploadDepsFiles(this.getStockPath(), "/Snippet Cat", client);
+          vscode.window.showInformationMessage("上传完毕");
+          this.refresh();
+        } catch (e: any) {
+          vscode.window.showInformationMessage(e.message);
+        }
       }
-      this.refresh();
-    } catch {
-      vscode.window.showInformationMessage("连接出错,请核对webdav设置");
+
+    } else {
+      vscode.window.showErrorMessage("用户取消上传");
     }
   }
 
 
   async download() {
-
+    this.checkRoot();
     let key = await vscode.window.showInputBox({ placeHolder: "", value: "确定下载吗,这将覆盖本地数据", valueSelection: [0, 2] });
-    let webdavConfig = <any>this.getConfig().get("webdav");
-    let { url, username, password } = webdavConfig;
-    const client = createClient(url, {
-      username: username,
-      password: password,
-    });
+    
+    if (key) {
+      const sysnModel = this.getConfig().get("sysnModel");
 
-    try {
-      await client.exists("/Snippet Cat");
-      if ((await key === "确定下载吗,这将覆盖本地数据")) {
-        vscode.window.showInformationMessage("开始下载");
-        sync.downloadDepsFiles(this.stockRoot, "/Snippet Cat", client);
-        vscode.window.showInformationMessage("下载完毕");
+      if (sysnModel === "github") {
+        let githubConfig = <any>this.getConfig().get("github");
+        let { pull } = githubConfig;
+        utils.runCMD(this.getStockPath(), pull);
+
       } else {
-        vscode.window.showInformationMessage("用户取消下载");
+        let webdavConfig = <any>this.getConfig().get("webdav");
+        let { url, username, password } = webdavConfig;
+        const client = createClient(url, {
+          username: username,
+          password: password,
+        });
+
+        try {
+          await client.exists("/Snippet Cat");
+          if ((await key === "确定下载吗,这将覆盖本地数据")) {
+            vscode.window.showInformationMessage("开始使用WEBDAV下载");
+            sync.downloadDepsFiles(this.getStockPath(), "/Snippet Cat", client);
+            vscode.window.showInformationMessage("下载完毕");
+          } else {
+            vscode.window.showInformationMessage("用户取消下载");
+          }
+          this.refresh();
+        } catch (e) {
+          vscode.window.showInformationMessage("连接出错,请核对webdav设置");
+        }
       }
-      this.refresh();
-    } catch (e) {
-      vscode.window.showInformationMessage("连接出错,请核对webdav设置");
+    } else {
+      vscode.window.showErrorMessage("用户取消下载");
     }
   }
 
@@ -268,7 +321,8 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   }
 
   addGroup(e: SnippetItem) {
-    let folderPath = e ? e.fullPath : this.stockRoot;
+    this.checkRoot();
+    let folderPath = e ? e.fullPath : this.getStockPath();
     let iter = this.handleSnippets("请输入文件夹名", "", [0, 0]);
     iter.next().then(
       (data: any) => {
@@ -300,7 +354,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
 
   async addSnippet(e: any) {
     let lastExt = await this.getConfig().get("lastFileExt");
-  
+
     let iter = this.handleSnippets("请输入文件名", "." + lastExt, [0, 0]);
     iter.next().then(
       (data: any) => {

@@ -2,7 +2,7 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "yuelili",
   "icon":"media/logo.png",
   "sponsor": {
@@ -30,15 +30,40 @@
         },
         "snippet-cat.sysnModel": {
           "type": "string",
-          "default": "webdav",
+          "default": "github",
           "enum": [
-            "webdav",
-            "github"
+            "github",
+            "webdav"
           ],
           "enumDescriptions": [
             "使用webdav进行同步,请设置webdav信息",
             "使用github进行同步(开发中...)"
           ]
+        },
+        "snippet-cat.github": {
+          "type": "object",
+          "default": {
+            "pull": "git pull origin",
+            "push": "git add .|git commit -m '''|git push -u origin main"
+          },
+          "properties": {
+            "pull": {
+              "type": "string",
+              "default": "git pull origin",
+              "description": "pull 指令"
+            },
+            "push": {
+              "type": "string",
+              "default": "git add .|git commit -m '''|git push -u origin main",
+              "description": "push 指令"
+            }
+          },
+          "required": [
+            "pull",
+            "push"
+          ],
+          "additionalProperties": false,
+          "description": "GITHUB 设置"
         },
         "snippet-cat.webdav": {
           "type": "object",
@@ -71,11 +96,11 @@
             "password"
           ],
           "additionalProperties": false,
-          "description": "To Setup Proxy"
+          "description": "WEBDAV 设置"
         },
-        "snippet-cat.machineID": {
+        "snippet-cat.stockPath": {
           "type": "array",
-          "default": [],
+          "default": ["","","",""],
           "items": {
             "type": "string"
           },
