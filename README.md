@@ -22,6 +22,7 @@ Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段.
 
 - 搜索
 - github/gitee同步
+- 文件夹拖拽
 
 
 ## 版本更新
@@ -42,3 +43,42 @@ Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段.
 本地云端都有,且修改日期一致,则跳过同步
 
 ## 
+
+git init
+初始化
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:Yuelioi/snippets.git
+git push -u origin main
+
+## 1 远程创建一个仓库,并在本地初始化
+
+git init
+git add .
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:Yuelioi/snippets.git
+git push -u origin main
+
+## 2 推送
+
+git add .
+git commit -m "2131"
+git push -u origin main
+
+## 2 异常推送
+
+git branch dev
+git add .
+git commit -m "2131"
+git checkout dev
+git push origin dev
+git checkout main
+git merge dev
+git push -u origin main
+git branch -D dev
+
+## 拉取
+
+git pull origin
