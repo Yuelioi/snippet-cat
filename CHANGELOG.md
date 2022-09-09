@@ -1,9 +1,19 @@
-# Change Log
+# 变更日志
 
-All notable changes to the "snippet-cat" extension will be documented in this file.
+## [0.0.3] - 2022-09-09
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+- 优先显示文件夹
+- 支持使用github推送
 
-## [Unreleased]
+## [0.0.2] - 2022-09-08
 
-- Initial release
+- 插件用户设置
+- 新建片段文件后缀 基于上一次新建
+- 支持不同工作环境同步文件夹信息(  {机器1mac:片段路径1,机器2mac:片段路径2) 方便公司家里同步
+
+
+## [0.0.1] - 2022-09-07
+＃＃＃ 添加
+- 主体框架
+- 两种视图
+- webdav
