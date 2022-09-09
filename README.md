@@ -23,6 +23,8 @@ Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段.
 
 - 搜索
 - github/gitee同步
+- 文件夹拖拽
+- 增加备份文件夹
 
 
 
