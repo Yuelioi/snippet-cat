@@ -87,10 +87,30 @@ git branch -D dev
 ## 拉取
 
 git pull origin
-=======
+
 ## github同步
 
-先初始化仓库
+先初始化仓库(在本地打开git base操作)
 
-然后在vsc插件设置里 设置 pull 和 push命令(用 | 分割每行命令)
->>>>>>> f2e7b5ea70011a99e12a26c65eae330295e11796
+```
+echo "# snippets" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin git@github.com:你的git仓库
+git push -u origin main
+```
+
+创建忽略设置文件 .gitignore (以下是忽略"点"开头的文件与文件夹)
+```
+.*
+```
+
+此后正常使用插件的上传和下载命令即可
+
+自定义命令:vsc插件设置里 设置 pull 和 push命令(用 | 分割每行命令)
+
+%time : 代表当前时间戳 yyyymmddHHMMSSms
+%待续
+

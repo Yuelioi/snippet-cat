@@ -4,11 +4,11 @@
   "description": "Snippet Collections",
   "version": "0.0.3",
   "publisher": "yuelili",
-  "icon":"media/logo.png",
+  "icon": "media/logo.png",
+
   "sponsor": {
     "url": "https://yuelili.com"
   },
-
   "engines": {
     "vscode": "^1.71.0"
   },
@@ -44,7 +44,7 @@
           "type": "object",
           "default": {
             "pull": "git pull origin",
-            "push": "git add .|git commit -m '''|git push -u origin main"
+            "push": "git add .|git commit -m '%time'|git push"
           },
           "properties": {
             "pull": {
@@ -54,7 +54,7 @@
             },
             "push": {
               "type": "string",
-              "default": "git add .|git commit -m '''|git push -u origin main",
+              "default": "git add .|git commit -m '%time'|git push",
               "description": "push 指令"
             }
           },
@@ -100,7 +100,12 @@
         },
         "snippet-cat.stockPath": {
           "type": "array",
-          "default": ["","","",""],
+          "default": [
+            "",
+            "",
+            "",
+            ""
+          ],
           "items": {
             "type": "string"
           },
@@ -312,6 +317,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "fs-extra": "^10.1.0",
     "getmac": "^5.20.0",
     "webdav": "^4.11.0"
   },

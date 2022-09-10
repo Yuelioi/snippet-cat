@@ -1,10 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as vscode from "vscode";
+import * as utils from "./global";
+import * as configs from "./configs";
+import * as syncs from "./syncs";
+import { AuthType, createClient, WebDAVClient } from "webdav";
 
-
-
-export async function downloadDepsFiles(loaclFolderPath: string, syncFolderPath: string,client:any) {
-
+export async function downloadDepsFiles(loaclFolderPath: string, syncFolderPath: string, client: any) {
   const syncFolder = <any[]>await client.getDirectoryContents(syncFolderPath);
   const syncItems = <string[]>syncFolder.map((x: any) => x.basename);
 
@@ -13,8 +15,7 @@ export async function downloadDepsFiles(loaclFolderPath: string, syncFolderPath:
     let syncFileName = syncFileInfo.basename;
     let localFullPath = path.resolve(loaclFolderPath, syncFileName);
 
-    if (syncFileInfo.type !== 'directory') {
-
+    if (syncFileInfo.type !== "directory") {
       const syncStuts = <any>await client.stat(syncFullPath);
       const syncModTime = new Date(syncStuts.lastmod).getTime();
 
@@ -26,16 +27,14 @@ export async function downloadDepsFiles(loaclFolderPath: string, syncFolderPath:
       }
 
       if (localModTime !== syncModTime) {
-        const content =<string> await client.getFileContents(syncFullPath, { format: "text" });
-        fs.writeFileSync(localFullPath, content, { encoding: "utf8", flag: "w+", });
+        const content = <string>await client.getFileContents(syncFullPath, { format: "text" });
+        fs.writeFileSync(localFullPath, content, { encoding: "utf8", flag: "w+" });
       }
-
     } else {
-
       if (!fs.existsSync(localFullPath)) {
         fs.mkdir(path.join(localFullPath), err => console.log("文件不存在,已创建"));
       }
-      downloadDepsFiles(localFullPath, syncFullPath,client);
+      downloadDepsFiles(localFullPath, syncFullPath, client);
     }
   });
 
@@ -45,25 +44,16 @@ export async function downloadDepsFiles(loaclFolderPath: string, syncFolderPath:
   diffItems.forEach(async (x: string) => {
     fs.rmSync(path.join(loaclFolderPath, x), { recursive: true, force: true });
   });
-
-}
-
-function folderExists(p: string): boolean {
-  if (fs.lstatSync(p).isDirectory()) {
-    return true;
-  }
-  return false;
 }
 
 export async function uploadDepsFiles(loaclFolderPath: string, syncFolderPath: string, client: any) {
   const localItems = fs.readdirSync(loaclFolderPath);
 
-
   localItems.forEach(async function (localFileName) {
     let localFullPath = path.resolve(loaclFolderPath, localFileName);
     let syncFullPath = path.join(syncFolderPath, localFileName).split(path.sep).join("/");
 
-    let isFolder = folderExists(localFullPath);
+    let isFolder = fs.lstatSync(localFullPath).isDirectory();
     if (!isFolder) {
       console.log("正在上传" + localFullPath);
       fs.stat(localFullPath, async (err, stat) => {
@@ -89,7 +79,6 @@ export async function uploadDepsFiles(loaclFolderPath: string, syncFolderPath: s
     }
   });
 
-
   const syncRes = await client.getDirectoryContents(syncFolderPath);
   const syncItems = syncRes.map((x: any) => x.basename);
   const diffItems = syncItems.filter((x: string) => !localItems.includes(x));
@@ -97,4 +86,63 @@ export async function uploadDepsFiles(loaclFolderPath: string, syncFolderPath: s
   diffItems.forEach(async (x: string) => {
     await client.deleteFile(syncFolderPath + "/" + x);
   });
+}
+
+/**
+ * @param srcThis 
+ * @param syncInfo 上传|下载
+ * @param localInfo 云端|本地
+ * @param syncMode 0|1 上传|下载
+ */
+export async function syncByGithub(srcThis: any,syncInfo:string,localInfo:string,syncMode:0|1) {
+  srcThis.checkRoot();
+
+  let key = await vscode.window.showInputBox({
+    placeHolder: `确定${syncInfo}吗,这将覆盖${localInfo}数据`,
+    value: `确定${syncInfo}吗,这将覆盖${localInfo}数据`,
+    valueSelection: [0, 2],
+  });
+
+
+  if (key) {
+    vscode.window.showInformationMessage("正在备份中");
+    const stockPath =srcThis.getStockPath().split("\\").join("/");
+    
+    utils.recoveryStock(stockPath);
+    vscode.window.showInformationMessage("备份成功");
+    const sysnModel = configs.getConfig().get("sysnModel");
+
+    if (sysnModel === "github") {
+      let { push,pull} = <any>configs.getConfig().get("github");
+      vscode.window.showInformationMessage(`正在使用GITHUB${syncInfo}`);
+      utils.runCMD(stockPath,[push,pull][syncMode] );
+      vscode.window.showInformationMessage(`${syncInfo}完毕`);
+    } else if (sysnModel === "webdav") {
+      let { url, username, password } = <any>configs.getConfig().get("webdav");
+      const client = createClient(url, {
+        username: username,
+        password: password,
+      });
+
+      try {
+        if ((await client.exists("/Snippet Cat")) === false) {
+          await client.createDirectory("/Snippet Cat");
+        }
+
+        vscode.window.showInformationMessage(`正在使用WEBDAV${syncInfo}`);
+        if(syncMode === 0){
+          syncs.uploadDepsFiles(stockPath, "/Snippet Cat", client);
+        }else{
+          syncs.downloadDepsFiles(stockPath, "/Snippet Cat", client);
+        }
+        
+        vscode.window.showInformationMessage("${syncInfo}完毕");
+        srcThis.refresh();
+      } catch (e: any) {
+        vscode.window.showErrorMessage(e.message);
+      }
+    }
+  } else {
+    vscode.window.showErrorMessage(`用户取消${syncInfo}`);
+  }
 }
