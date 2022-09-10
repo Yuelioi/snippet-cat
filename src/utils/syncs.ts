@@ -94,7 +94,7 @@ export async function uploadDepsFiles(loaclFolderPath: string, syncFolderPath: s
  * @param localInfo 云端|本地
  * @param syncMode 0|1 上传|下载
  */
-export async function syncByGithub(srcThis: any,syncInfo:string,localInfo:string,syncMode:0|1) {
+export async function syncCloud(srcThis: any,syncInfo:string,localInfo:string,syncMode:0|1) {
   srcThis.checkRoot();
 
   let key = await vscode.window.showInputBox({
@@ -102,7 +102,6 @@ export async function syncByGithub(srcThis: any,syncInfo:string,localInfo:string
     value: `确定${syncInfo}吗,这将覆盖${localInfo}数据`,
     valueSelection: [0, 2],
   });
-
 
   if (key) {
     vscode.window.showInformationMessage("正在备份中");
@@ -113,10 +112,11 @@ export async function syncByGithub(srcThis: any,syncInfo:string,localInfo:string
     const sysnModel = configs.getConfig().get("sysnModel");
 
     if (sysnModel === "github") {
-      let { push,pull} = <any>configs.getConfig().get("github");
       vscode.window.showInformationMessage(`正在使用GITHUB${syncInfo}`);
+      let { push,pull} = <any>configs.getConfig().get("github");
+      
       utils.runCMD(stockPath,[push,pull][syncMode] );
-      vscode.window.showInformationMessage(`${syncInfo}完毕`);
+
     } else if (sysnModel === "webdav") {
       let { url, username, password } = <any>configs.getConfig().get("webdav");
       const client = createClient(url, {

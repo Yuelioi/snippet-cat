@@ -2,7 +2,7 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "yuelili",
   "icon": "media/logo.png",
 
@@ -20,6 +20,12 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
+    "viewsWelcome": [
+      {
+        "view": "snippet-cat-view",
+        "contents": "还没有设置储存目录[learn more](https://github.com/Yuelioi/snippet-cat/).\n[添加储存目录](command:snippet-cat.addStockPath)"
+      }
+    ],
     "configuration": {
       "title": "Snippet Cat",
       "properties": {

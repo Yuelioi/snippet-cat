@@ -1,54 +1,115 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import { TreeItem } from "vscode";
 
 import * as utils from "./utils/global";
 import * as syncs from "./utils/syncs";
 import * as configs from "./utils/configs";
 
-/**
- *
- */
-export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
-  tree: any;
-  public treeList: SnippetItem[];
 
-  private _children: SnippetItem[];
-  private _parent: SnippetItem | undefined | null;
-  public _folderView: boolean;
-  private _onDidChangeTreeData: vscode.EventEmitter<SnippetItem | undefined | null | void> = new vscode.EventEmitter<
-    SnippetItem | undefined | null | void
-  >();
-
+export class TreeProvider implements vscode.TreeDataProvider<SnippetElement>, vscode.TreeDragAndDropController<SnippetElement> {
+  dropMimeTypes = ["application/vnd.code.tree.snippet-cat-view"];
+  dragMimeTypes = ["text/uri-list"];
+  private _onDidChangeTreeData: vscode.EventEmitter<SnippetElement | undefined> = new vscode.EventEmitter<SnippetElement | undefined>();
+  readonly onDidChangeTreeData: vscode.Event<SnippetElement | undefined> = this._onDidChangeTreeData.event;
+  public treeExpandList: SnippetElement[];
+  public viewType: boolean;
   private stockID: number;
-  readonly onDidChangeTreeData: vscode.Event<SnippetItem | undefined | null | void> = this._onDidChangeTreeData.event;
 
-  constructor() {
-    this._onDidChangeTreeData = new vscode.EventEmitter();
-    this.onDidChangeTreeData = this._onDidChangeTreeData.event;
-    this.treeList = [];
-    this.tree;
-    this._children = [];
-    this._folderView = true;
+  constructor(context: vscode.ExtensionContext) {
+    const view = vscode.window.createTreeView("snippet-cat-view", {
+      treeDataProvider: this,
+      showCollapseAll: true,
+      canSelectMany: true,
+      dragAndDropController: this,
+    });
+    context.subscriptions.push(view);
+    this.treeExpandList = [];
+    this.viewType = true;
     this.stockID = -1;
     configs.initStock(this);
   }
 
+  getChildren(element: SnippetElement): Thenable<SnippetElement[]> {
+    this.checkRoot();
+    return Promise.resolve(this._getChildren(element ? element.fullPath : this.getStockPath()));
+  }
+
+  public getTreeItem(element: SnippetElement): vscode.TreeItem {
+    const treeItem = this._getTreeItem(element.fullPath);
+    return treeItem;
+  }
+
+  _getTreeItem(fullPath: string): SnippetItem {
+    const treeElement = this._getTreeElement(fullPath);
+    return new SnippetItem(
+      treeElement,
+      treeElement.basename,
+      treeElement.isDir ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None
+    );
+  }
+
+  _getTreeElement(fullPath: string): SnippetElement {
+    return new SnippetElement(fullPath);
+  }
+
+  // Element 列表
+  _getChildren(folderPath: string): SnippetElement[] {
+    const resFolder = fs.readdirSync(folderPath);
+    const tree: SnippetElement[] = [];
+    const _this = this;
+
+    let folderList = resFolder.filter(fileName => fs.lstatSync(path.resolve(folderPath, fileName)).isDirectory() && !fileName.startsWith("."));
+    let fileList = resFolder.filter((fileName: string) => !folderList.includes(fileName) && !fileName.startsWith("."));
+
+    folderList.forEach(function (fileName: any) {
+      const fullPath = path.resolve(folderPath, fileName);
+      if (_this.viewType) {
+        tree.push(_this._getTreeElement(fullPath));
+      }
+      _this._getChildren(fullPath);
+    });
+
+    fileList.forEach(function (fileName: any) {
+      const fullPath = path.resolve(folderPath, fileName);
+      if (_this.viewType) {
+        tree.push(_this._getTreeElement(fullPath));
+      } else {
+        _this.treeExpandList.push(_this._getTreeElement(fullPath));
+      }
+    });
+    if (_this.viewType) {
+      return tree;
+    } else {
+      return this.treeExpandList;
+    }
+  }
+
+  // Drag and drop
+  public async handleDrop(target: SnippetElement, sources: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
+    const transferItem = sources.get("application/vnd.code.tree.snippet-cat-view");
+    if (!transferItem) {
+      return;
+    }
+    const srcTreeElemtents: SnippetElement[] = transferItem.value;
+
+    srcTreeElemtents.forEach(el => {
+      fs.rename(el.fullPath, path.join(target.dirPath, el.basename), function (err) {
+        if (err) {
+          throw err;
+        }
+      });
+    });
+
+    this.refresh();
+  }
+
+  public async handleDrag(source: SnippetElement[], treeDataTransfer: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
+    treeDataTransfer.set("application/vnd.code.tree.snippet-cat-view", new vscode.DataTransferItem(source));
+  }
+
   public setTreeView(element: any) {
-    this.tree = element;
-  }
-
-  public getTreeItem(element: TreeItem) {
-    return element;
-  }
-
-  get parent(): SnippetItem | undefined | null {
-    return this._parent;
-  }
-
-  get children(): SnippetItem[] {
-    return this._children;
+    this.treeExpandList = element;
   }
 
   getStockPath() {
@@ -85,86 +146,26 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     });
   }
 
-  refresh(): void {
-    this._onDidChangeTreeData.fire();
-  }
-
-  getChildren(element?: SnippetItem): Thenable<SnippetItem[]> {
-    this.checkRoot();
-
-    if (this._folderView) {
-      if (element) {
-        return Promise.resolve(this.getFileView(element.fullPath));
-      } else {
-        return Promise.resolve(this.getFileView(this.getStockPath()));
-      }
-    }
-    return Promise.resolve(this.getFileView(this.getStockPath()));
-  }
-
-  getFileView(stockPath: string): SnippetItem[] {
-    if (this._folderView) {
-      return this.getDepsFiles(stockPath);
-    }
-
-    this.getDepsFiles(stockPath);
-    return this.treeList;
-  }
-
-  getDepsFiles(folderPath: string) {
-    const resFolder = fs.readdirSync(folderPath);
-    let tree: SnippetItem[] = [];
-    let _this = this;
-
-    let folderList = resFolder.filter(fileName => fs.lstatSync(path.resolve(folderPath, fileName)).isDirectory());
-    const fileList = resFolder.filter((x: string) => !folderList.includes(x));
-    folderList = folderList.filter(fileName => !fileName.startsWith("."));
-
-    folderList.forEach(function (fileName: any) {
-      let fullPath = path.resolve(folderPath, fileName);
-      if (_this._folderView) {
-        tree.push(new SnippetItem(fullPath, fileName, "folder", "Group", vscode.TreeItemCollapsibleState.Collapsed));
-      }
-      _this.getDepsFiles(fullPath);
-    });
-
-    fileList.forEach(function (fileName: any) {
-      let fullPath = path.resolve(folderPath, fileName);
-      let ext = fileName.split(".");
-      let icon = ext.length === 1 ? "file" : ext[ext.length - 1];
-      if (_this._folderView) {
-        tree.push(new SnippetItem(fullPath, fileName, icon, "Snippet", vscode.TreeItemCollapsibleState.None));
-      } else {
-        _this.treeList.push(new SnippetItem(fullPath, fileName, icon, "Snippet", vscode.TreeItemCollapsibleState.None));
-      }
-    });
-
-    return tree;
-  }
-
-  getParent(e: SnippetItem) {
-    return null;
-  }
-
-  getSelection() {
-    return this.tree.selection;
+  async refresh(): Promise<void> {
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   viewSwitch() {
-    this._folderView = !this._folderView;
-    this.treeList = [];
+    this.viewType = !this.viewType;
+    this.treeExpandList = [];
     this.refresh();
   }
 
-  click(filePath: any) {
+  click(filePath: string) {
     var openPath = vscode.Uri.parse("file:///" + filePath.split(`\\`).join(`/`)); //A request file path
     vscode.workspace.openTextDocument(openPath).then(doc => {
       vscode.window.showTextDocument(doc);
     });
   }
 
+  // TODO
   search(element: any) {
-    this.tree.reveal(element, { select: true, focus: true, expand: true });
+    // this.treeExpandList.reveal(element, { select: true, focus: true, expand: true });
   }
 
   checkRoot() {
@@ -174,18 +175,18 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   }
 
   async upload() {
-    syncs.syncByGithub(this, "上传", "云端", 0);
+    syncs.syncCloud(this, "上传", "云端", 0);
   }
 
   async download() {
-    syncs.syncByGithub(this, "下载", "本地", 1);
+    syncs.syncCloud(this, "下载", "本地", 1);
   }
 
-  openGroup(e: any) {
+  openGroup(e: SnippetElement) {
     utils.revealFileInOS(e.fullPath);
   }
 
-  addGroup(e: SnippetItem) {
+  addGroup(e: SnippetElement) {
     this.checkRoot();
     let folderPath = e ? e.fullPath : this.getStockPath();
 
@@ -198,8 +199,8 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     );
   }
 
-  editGroup(e: SnippetItem) {
-    let iter = configs.handleSnippets(this, "请输入文件夹名", e.label, [0, e.label instanceof String ? e.label.length - 1 : 0]);
+  editGroup(e: SnippetElement) {
+    let iter = configs.handleSnippets(this, "请输入文件夹名", e.basename, [0, e.basename.length]);
     iter.next().then(
       (data: any) => {
         iter.next([fs.rename, e.fullPath, path.join(e.fullPath, "..", data.value)]);
@@ -208,7 +209,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     );
   }
 
-  deleteGroup(e: any) {
+  deleteGroup(e: SnippetElement) {
     let iter = configs.handleSnippets(this, "确认删除", "确认", [0, 2]);
     iter.next().then(
       (data: any) => {
@@ -218,7 +219,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     );
   }
 
-  async addSnippet(e: any) {
+  async addSnippet(e: SnippetElement) {
     let lastExt = await configs.getConfig().get("lastFileExt");
 
     let iter = configs.handleSnippets(this, "请输入文件名", "." + lastExt, [0, 0]);
@@ -237,7 +238,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     );
   }
 
-  deleteSnippet(e: any) {
+  deleteSnippet(e: SnippetElement) {
     let iter = configs.handleSnippets(this, "确认删除", "确认", [0, 2]);
     iter.next().then(
       (data: any) => {
@@ -247,9 +248,10 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
     );
   }
 
-  editSnippet(e: any) {
-    let endPos = e.icon === "file" ? e.fileName.length : e.fileName.length - e.icon.length - 1;
-    let iter = configs.handleSnippets(this, "请输入新文件名", e.label, [0, endPos]);
+  editSnippet(e: SnippetElement) {
+    let ext = path.extname(e.fullPath);
+    let endPos = e.basename.length - ext.length;
+    let iter = configs.handleSnippets(this, "请输入新文件名", e.basename, [0, endPos]);
     iter.next().then(
       (data: any) => {
         iter.next([fs.rename, e.fullPath, path.join(e.fullPath, "..", data.value)]);
@@ -259,34 +261,43 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetItem> {
   }
 }
 
+class SnippetElement {
+  basename: string;
+  isDir: boolean;
+  fullPath: string;
+  dirPath: string;
+  constructor(fullPath: string) {
+    this.fullPath = fullPath;
+    this.basename = path.basename(fullPath);
+    this.isDir = fs.lstatSync(fullPath).isDirectory();
+    this.dirPath = this.isDir ? fullPath : path.dirname(fullPath);
+  }
+}
+
 class SnippetItem extends vscode.TreeItem {
-  constructor(
-    public readonly fullPath: string,
-    private fileName: string,
-    private icon: string,
-    private fileType: string,
-    public readonly collapsibleState: vscode.TreeItemCollapsibleState
-  ) {
-    super(fullPath, collapsibleState);
-    this.label = this.fileName;
-    this.tooltip = `${this.fullPath}`;
-    this.description = this.fileName;
-    this.contextValue = this.fileType;
-    this.icon = this.icon;
-    if (fileType === "Snippet") {
+  constructor(element: SnippetElement, label: string, collapsibleState: vscode.TreeItemCollapsibleState) {
+    super(label, collapsibleState);
+    this.label = element.basename;
+    this.id = this.tooltip = element.fullPath;
+    this.contextValue = element.isDir ? "Group" : "Snippet";
+
+    let icon = "folder";
+    if (this.contextValue === "Snippet") {
       this.command = {
         title: "Item Command",
         command: "snippet-cat.click",
-        arguments: [this.fullPath],
+        arguments: [element.fullPath],
       };
+      icon = path.extname(element.fullPath).replace(".", "");
 
-      if (!fs.existsSync(path.join(__filename, "..", "..", "media", "icons", "files", "dark", `${this.icon}.svg`))) {
-        this.icon = "file";
+      if (!fs.existsSync(path.join(__filename, "..", "..", "media", "icons", "files", "dark", `${icon}.svg`))) {
+        icon = "file";
       }
     }
+
     this.iconPath = {
-      light: path.join(__filename, "..", "..", "media", "icons", "files", "light", `${this.icon}.svg`),
-      dark: path.join(__filename, "..", "..", "media", "icons", "files", "dark", `${this.icon}.svg`),
+      light: path.join(__filename, "..", "..", "media", "icons", "files", "light", `${icon}.svg`),
+      dark: path.join(__filename, "..", "..", "media", "icons", "files", "dark", `${icon}.svg`),
     };
   }
 }

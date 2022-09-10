@@ -3,15 +3,8 @@
 import * as vscode from "vscode";
 import { TreeProvider } from "./fileTree";
 
-
 export function activate(context: vscode.ExtensionContext) {
-  // const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-  // 	? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-
-
-  let treeProvider = new TreeProvider();
-  let catView = vscode.window.createTreeView("snippet-cat-view", { treeDataProvider: treeProvider, showCollapseAll: true });
-  treeProvider.setTreeView(catView);
+  const treeProvider = new TreeProvider(context);
 
   context.subscriptions.push(
     vscode.commands.registerCommand("snippet-cat.click", path => treeProvider.click(path)),
