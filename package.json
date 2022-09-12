@@ -9,7 +9,7 @@
     "url": "https://yuelili.com"
   },
   "engines": {
-    "vscode": "^1.71.0"
+    "vscode": "^1.50.0"
   },
   "categories": [
     "Snippets"
@@ -360,7 +360,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yuelioi/snippet-cat.main.git"
+    "url": "git+https://github.com/Yuelioi/snippet-cat.git"
   },
   "author": "",
   "license": "ISC",
