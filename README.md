@@ -3,36 +3,53 @@
 Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段.
 
 
-![介绍](https://cdn.yuelili.com/20220911070958.webp)
+![介绍](https://cdn.yuelili.com/20220912212928.webp)
 
 ## 功能
 
 - 片段管理,无限层级(文件/文件夹) 
 - 两种视图:支持树状 所有文件平铺
 - 支持同步(webdav/github/gitee)
-- webdav只支持文本类型同步(为了加快同步速度)
+- 函数大纲/markdown二级标题
 
-## DONE
+## 亮点
 
-- 主体框架
-- 两种视图
-- webdav/github/gitee同步
-- 用户设置
-- 新建片段文件后缀 基于上一次新建
-- 支持不同工作环境同步文件夹信息(  {机器1mac:片段路径1,机器2mac:片段路径2) 方便公司家里同步
-- 优先显示文件夹
-- 过滤(目前过滤.开头的文件)
-- 文件夹拖拽
+- 片段文件后缀 是基于上一次新建文件的后缀
+- 支持不同工作环境同步文件夹信息,方便公司家里同步 {机器1mac:片段路径1,机器2mac:片段路径2} 
+
+## 管理器视图
+
+- 文件/文件夹增删改查
 - 同步前自动备份
+
+## 大纲视图
+
+- 一键复制代码
+- 单击标题 跳转到指定位置
 
 ## DOING
 
 - 搜索
-- 排序
+- 排序(多种排序)
 
-## 不重要
+## 大纲书写规格
 
-- 自定义过滤内容
+```
+@start
+@name:your function name
+@description: your function description
+
+...
+your code
+...
+
+@end
+
+```
+
+markdown暂时只支持二级标题,而且不支持单击跳转,我不会写~
+
+`## your title`
 
 
 ## webdav 同步逻辑
@@ -64,7 +81,7 @@ git push -u origin main
 
 此后正常使用插件的上传和下载命令即可
 
-自定义命令:vsc插件设置里 设置 pull 和 push命令(用 | 分割每行命令)
+自定义命令:VSCODE 插件设置里 设置 pull 和 push命令(用 | 分割每行命令)
 
 %time : 代表当前时间戳 yyyymmddHHMMSSms
 

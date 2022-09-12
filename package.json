@@ -2,10 +2,9 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "yuelili",
   "icon": "media/logo.png",
-
   "sponsor": {
     "url": "https://yuelili.com"
   },
@@ -23,9 +22,34 @@
     "viewsWelcome": [
       {
         "view": "snippet-cat-view",
-        "contents": "还没有设置储存目录[learn more](https://github.com/Yuelioi/snippet-cat/).\n[添加储存目录](command:snippet-cat.addStockPath)"
+        "contents": "还没有设置储存目录[learn more](https://github.com/Yuelioi/snippet-cat/).\n[添加储存目录](command:snippet-cat.main.addStockPath)"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "snippetCat",
+          "title": "Snippet Cat",
+          "icon": "media/cat.svg"
+        }
+      ]
+    },
+    "views": {
+      "snippetCat": [
+        {
+          "id": "snippet-cat-view",
+          "name": "片段管理器",
+          "icon": "media/cat.svg",
+          "contextualTitle": "Explorer"
+        },
+        {
+          "id": "snippet-cat-outline",
+          "name": "大纲",
+          "icon": "media/cat.svg",
+          "contextualTitle": "Outline"
+        }
+      ]
+    },
     "configuration": {
       "title": "Snippet Cat",
       "properties": {
@@ -120,176 +144,183 @@
         }
       }
     },
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "snippetCat",
-          "title": "Snippet Cat",
-          "icon": "media/cat.svg"
-        }
-      ]
-    },
-    "views": {
-      "snippetCat": [
-        {
-          "id": "snippet-cat-view",
-          "name": "片段管理器",
-          "icon": "media/cat.svg",
-          "contextualTitle": "Explorer"
-        }
-      ]
-    },
     "commands": [
       {
-        "command": "snippet-cat.search",
+        "command": "snippet-cat.main.search",
         "title": "Search",
         "category": "Snippet Cat",
         "icon": "$(search)"
       },
       {
-        "command": "snippet-cat.viewSwitch",
+        "command": "snippet-cat.main.viewSwitch",
         "title": "Switch View",
         "category": "Snippet Cat",
         "icon": "$(testing-show-as-list-icon)"
       },
       {
-        "command": "snippet-cat.download",
+        "command": "snippet-cat.main.download",
         "title": "Download",
         "category": "Snippet Cat",
         "icon": "$(cloud-download)"
       },
       {
-        "command": "snippet-cat.upload",
+        "command": "snippet-cat.main.upload",
         "title": "Upload",
         "category": "Snippet Cat",
         "icon": "$(cloud-upload)"
       },
       {
-        "command": "snippet-cat.refresh",
+        "command": "snippet-cat.main.refresh",
         "title": "Refresh",
         "category": "Snippet Cat",
         "icon": "$(refresh)"
       },
       {
-        "command": "snippet-cat.addStockPath",
+        "command": "snippet-cat.main.addStockPath",
         "title": "Add Stock Path",
         "category": "Snippet Cat",
         "icon": "$(folder-opened)"
       },
       {
-        "command": "snippet-cat.addGroup",
+        "command": "snippet-cat.main.addGroup",
         "title": "Add Group",
         "category": "Snippet Cat",
         "icon": "$(file-directory-create)"
       },
       {
-        "command": "snippet-cat.editGroup",
+        "command": "snippet-cat.main.editGroup",
         "title": "Edit Group",
         "category": "Snippet Cat",
         "icon": "$(edit)"
       },
       {
-        "command": "snippet-cat.deleteGroup",
+        "command": "snippet-cat.main.deleteGroup",
         "title": "Delete Group",
         "category": "Snippet Cat",
         "icon": "$(trash)"
       },
       {
-        "command": "snippet-cat.openGroup",
+        "command": "snippet-cat.main.openGroup",
         "title": "Open in System File Explorer",
         "category": "Snippet Cat",
         "icon": "$(folder-opened)"
       },
       {
-        "command": "snippet-cat.addSnippet",
+        "command": "snippet-cat.main.addSnippet",
         "title": "Add Snippet",
         "category": "Snippet Cat",
         "icon": "$(new-file)"
       },
       {
-        "command": "snippet-cat.editSnippet",
+        "command": "snippet-cat.main.editSnippet",
         "title": "Edit Snippet",
         "category": "Snippet Cat",
         "icon": "$(pencil)"
       },
       {
-        "command": "snippet-cat.deleteSnippet",
+        "command": "snippet-cat.main.deleteSnippet",
         "title": "Delete Snippet",
         "category": "Snippet Cat",
         "icon": "$(trash)"
+      },
+      {
+        "command": "snippet-cat.outline.refresh",
+        "title": "Refresh",
+        "category": "outline",
+        "icon": "$(refresh)"
+      }
+      ,
+      {
+        "command": "snippet-cat.outline.copy",
+        "title": "Copy",
+        "category": "outline",
+        "icon": {
+          "dark": "media/icons/interface/dark/copy.svg",
+          "light": "media/icons/interface/light/copy.svg"
+        }
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "snippet-cat.viewSwitch",
+          "command": "snippet-cat.main.viewSwitch",
           "when": "view == snippet-cat-view",
           "group": "navigation@6"
         },
         {
-          "command": "snippet-cat.download",
+          "command": "snippet-cat.main.download",
           "when": "view == snippet-cat-view",
           "group": "navigation@3"
         },
         {
-          "command": "snippet-cat.upload",
+          "command": "snippet-cat.main.upload",
           "when": "view == snippet-cat-view",
           "group": "navigation@4"
         },
         {
-          "command": "snippet-cat.search",
+          "command": "snippet-cat.main.search",
           "when": "view == snippet-cat-view",
           "group": "navigation@2"
         },
         {
-          "command": "snippet-cat.addGroup",
+          "command": "snippet-cat.main.addGroup",
           "when": "view == snippet-cat-view",
           "group": "navigation@1"
         },
         {
-          "command": "snippet-cat.refresh",
+          "command": "snippet-cat.main.refresh",
           "when": "view == snippet-cat-view"
         },
         {
-          "command": "snippet-cat.addStockPath",
+          "command": "snippet-cat.main.addStockPath",
           "when": "view == snippet-cat-view"
+        },
+       
+        {
+          "command": "snippet-cat.outline.refresh",
+          "when": "view == snippet-cat-outline"
         }
       ],
       "view/item/context": [
         {
-          "command": "snippet-cat.addSnippet",
+          "command": "snippet-cat.main.addSnippet",
           "when": "view == snippet-cat-view && viewItem == Group",
           "group": "inline@1"
         },
         {
-          "command": "snippet-cat.addGroup",
+          "command": "snippet-cat.main.addGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
           "group": "inline@2"
         },
         {
-          "command": "snippet-cat.editGroup",
+          "command": "snippet-cat.main.editGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
           "group": "inline@3"
         },
         {
-          "command": "snippet-cat.openGroup",
+          "command": "snippet-cat.main.openGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
           "group": "inline@4"
         },
         {
-          "command": "snippet-cat.deleteGroup",
+          "command": "snippet-cat.main.deleteGroup",
           "when": "view == snippet-cat-view && viewItem == Group",
           "group": "inline@10"
         },
         {
-          "command": "snippet-cat.editSnippet",
+          "command": "snippet-cat.main.editSnippet",
           "when": "view == snippet-cat-view && viewItem == Snippet",
           "group": "inline@1"
         },
         {
-          "command": "snippet-cat.deleteSnippet",
+          "command": "snippet-cat.main.deleteSnippet",
           "when": "view == snippet-cat-view && viewItem == Snippet",
           "group": "inline@10"
+        },
+        {
+          "command": "snippet-cat.outline.copy",
+          "when": "view == snippet-cat-outline && viewItem == Title",
+          "group": "inline@1"
         }
       ]
     }
@@ -329,7 +360,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Yuelioi/snippet-cat.git"
+    "url": "git+https://github.com/Yuelioi/snippet-cat.main.git"
   },
   "author": "",
   "license": "ISC",

@@ -6,8 +6,7 @@ import * as utils from "./utils/global";
 import * as syncs from "./utils/syncs";
 import * as configs from "./utils/configs";
 
-
-export class TreeProvider implements vscode.TreeDataProvider<SnippetElement>, vscode.TreeDragAndDropController<SnippetElement> {
+export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>, vscode.TreeDragAndDropController<SnippetElement> {
   dropMimeTypes = ["application/vnd.code.tree.snippet-cat-view"];
   dragMimeTypes = ["text/uri-list"];
   private _onDidChangeTreeData: vscode.EventEmitter<SnippetElement | undefined> = new vscode.EventEmitter<SnippetElement | undefined>();
@@ -39,7 +38,11 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetElement>, vs
     const treeItem = this._getTreeItem(element.fullPath);
     return treeItem;
   }
-
+  /**
+   * @description :111
+   * @param fullPath
+   * @returns
+   */
   _getTreeItem(fullPath: string): SnippetItem {
     const treeElement = this._getTreeElement(fullPath);
     return new SnippetItem(
@@ -81,7 +84,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetElement>, vs
     if (_this.viewType) {
       return tree;
     } else {
-      return this.treeExpandList;
+      return this.treeExpandList.sort((el1: SnippetElement, el2: SnippetElement) => path.extname(el1.fullPath).toUpperCase() < path.extname(el2.fullPath).toUpperCase()?-1:1);
     }
   }
 
@@ -221,7 +224,7 @@ export class TreeProvider implements vscode.TreeDataProvider<SnippetElement>, vs
 
   async addSnippet(e: SnippetElement) {
     let lastExt = await configs.getConfig().get("lastFileExt");
-
+  
     let iter = configs.handleSnippets(this, "请输入文件名", "." + lastExt, [0, 0]);
     iter.next().then(
       (data: any) => {
@@ -285,7 +288,7 @@ class SnippetItem extends vscode.TreeItem {
     if (this.contextValue === "Snippet") {
       this.command = {
         title: "Item Command",
-        command: "snippet-cat.click",
+        command: "snippet-cat.main.click",
         arguments: [element.fullPath],
       };
       icon = path.extname(element.fullPath).replace(".", "");

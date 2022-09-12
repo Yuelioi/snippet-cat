@@ -115,6 +115,7 @@ export async function syncCloud(srcThis: any,syncInfo:string,localInfo:string,sy
       vscode.window.showInformationMessage(`正在使用GITHUB${syncInfo}`);
       let { push,pull} = <any>configs.getConfig().get("github");
       
+      
       utils.runCMD(stockPath,[push,pull][syncMode] );
 
     } else if (sysnModel === "webdav") {
