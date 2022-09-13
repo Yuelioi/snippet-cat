@@ -57,15 +57,7 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
 
   // }
 
-  // test() {
-  //   let editor = <any>vscode.window.activeTextEditor;
 
-  //   // 设置选择范围 起始结束的行号/字符号
-  //   editor.selection = new vscode.Selection(0, 0, 10, 0);
-
-  //   // 获取选择范围
-  //   let selections = editor?.selections;
-  // }
 
   async refresh(): Promise<void> {
     this.languageID = vscode.window.activeTextEditor?.document.languageId;

@@ -1,11 +1,9 @@
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-
 import * as utils from "./utils/global";
 import * as syncs from "./utils/syncs";
 import * as configs from "./utils/configs";
-
 
 
 
@@ -18,7 +16,6 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   public viewTreeMode: boolean;
   private stockID: number;
   view: any;
-
 
   constructor(context: vscode.ExtensionContext) {
     const snippetTreeView = vscode.window.createTreeView("snippet-cat-view", {

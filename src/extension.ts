@@ -4,30 +4,29 @@ import * as vscode from "vscode";
 import { SnippetsProvider } from "./SnippetsProvider";
 import { TOCProvider } from "./TOCProvider";
 
-
 import localeEn from "../package.nls.en.json";
 import localeJa from "../package.nls.jp.json";
 // import localeZh from "../package.nls.zh-CN.json";
 
-
+// Loading LocaleKeyType
 export type LocaleKeyType = keyof typeof localeEn;
 
-interface LocaleEntry
-{
-    [key : string] : string;
+interface LocaleEntry {
+  [key: string]: string;
 }
 const localeTableKey = vscode.env.language;
-const localeTable = Object.assign(localeEn, ((<{[key : string] : LocaleEntry}>{
-    ja : localeJa
-})[localeTableKey] || { }));
-const localeString = (key : string) : string => localeTable[key] || key;
-const localeMap = (key : LocaleKeyType) : string => localeString(<any>key);
+const localeTable = Object.assign(
+  localeEn,
+  (<{ [key: string]: LocaleEntry }>{
+    ja: localeJa,
+  })[localeTableKey] || {}
+);
+const localeString = (key: string): string => localeTable[key] || key;
+const localeMap = (key: LocaleKeyType): string => localeString(<any>key);
 
 export function activate(context: vscode.ExtensionContext) {
   const snippetProvider = new SnippetsProvider(context);
   const tocProvider = new TOCProvider(context);
-  
-  
 
   context.subscriptions.push(
     // 监听窗口变化
@@ -36,7 +35,6 @@ export function activate(context: vscode.ExtensionContext) {
     }),
 
     vscode.commands.registerCommand("snippet-cat.saveToStock", snippetProvider.saveToStock.bind(snippetProvider)),
-
 
     vscode.commands.registerCommand("snippet-cat.main.click", path => snippetProvider.click(path)),
     vscode.commands.registerCommand("snippet-cat.main.viewSwitch", snippetProvider.viewSwitch.bind(snippetProvider)),
@@ -59,8 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("snippet-cat.outline.click", tocProvider.click.bind(tocProvider)),
     vscode.commands.registerCommand("snippet-cat.outline.copy", tocProvider.copy.bind(tocProvider)),
 
-    vscode.commands.registerCommand("snippet-cat.outline.refresh", tocProvider.refresh.bind(tocProvider))
-    // 函数测试用
-    // vscode.commands.registerCommand("snippet-cat.outline.test", tocProvider.test.bind(tocProvider)),
+    vscode.commands.registerCommand("snippet-cat.outline.refresh", tocProvider.refresh.bind(tocProvider)),
+
   );
 }

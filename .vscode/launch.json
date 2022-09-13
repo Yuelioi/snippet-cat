@@ -11,7 +11,7 @@
 			"request": "launch",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}",
-        "--disable-extensions" // 调试时关闭其他拓展
+        // "--disable-extensions" // 调试时关闭其他拓展
  
 			],
 			"outFiles": [

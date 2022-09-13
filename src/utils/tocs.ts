@@ -1,5 +1,3 @@
-import * as vscode from "vscode";
-import * as fs from "fs";
 export class TOCElement {
   name: string;
   description: string;
