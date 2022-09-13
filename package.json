@@ -2,7 +2,7 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "yuelili",
   "icon": "media/logo.png",
   "sponsor": {
@@ -130,18 +130,9 @@
           "description": "%snippet-cat.webdav%"
         },
         "snippet-cat.stockPath": {
-          "type": "array",
-          "default": [
-            "",
-            "",
-            "",
-            ""
-          ],
-          "items": {
-            "type": "string"
-          },
-          "description": "%snippet-cat.stockPath%",
-          "scope": "resource"
+          "type": "string",
+          "default": "",
+          "description": "%snippet-cat.stockPath%"
         }
       }
     },
@@ -367,7 +358,6 @@
   },
   "dependencies": {
     "fs-extra": "^10.1.0",
-    "getmac": "^5.20.0",
     "vscode-nls": "^5.2.0",
     "webdav": "^4.11.0"
   },

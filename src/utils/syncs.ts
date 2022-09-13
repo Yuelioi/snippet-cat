@@ -2,7 +2,6 @@ import * as fs from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 import * as utils from "./global";
-import * as configs from "./configs";
 import * as syncs from "./syncs";
 import { AuthType, createClient, WebDAVClient } from "webdav";
 
@@ -94,7 +93,7 @@ export async function uploadDepsFiles(loaclFolderPath: string, syncFolderPath: s
  * @param localInfo 云端|本地
  * @param syncMode 0|1 上传|下载
  */
-export async function syncCloud(srcThis: any, syncInfo: string, localInfo: string, syncMode: 0 | 1) {
+export async function syncCloud(srcThis: any, syncInfo: string, localInfo: string, syncMode: 0 | 1,snippetCatConfig:any) {
   srcThis.checkRoot();
 
   let key = await vscode.window.showInputBox({
@@ -109,15 +108,15 @@ export async function syncCloud(srcThis: any, syncInfo: string, localInfo: strin
 
     utils.recoveryStock(stockPath);
     vscode.window.showInformationMessage("备份成功");
-    const sysnModel = configs.getConfig().get("sysnModel");
+    const sysnModel = snippetCatConfig.get("sysnModel");
 
     if (sysnModel === "github") {
       vscode.window.showInformationMessage(`正在使用GITHUB${syncInfo}`);
-      let { push, pull } = <any>configs.getConfig().get("github");
+      let { push, pull } = snippetCatConfig.get("github");
 
       utils.runCMD(stockPath, [push, pull][syncMode], srcThis);
     } else if (sysnModel === "webdav") {
-      let { url, username, password } = <any>configs.getConfig().get("webdav");
+      let { url, username, password } = snippetCatConfig.get("webdav");
       const client = createClient(url, {
         username: username,
         password: password,

@@ -34,6 +34,10 @@ export function activate(context: vscode.ExtensionContext) {
       tocProvider.refresh();
     }),
 
+    vscode.workspace.onDidChangeConfiguration(() => {
+      snippetProvider.init();
+    }),
+
     vscode.commands.registerCommand("snippet-cat.saveToStock", snippetProvider.saveToStock.bind(snippetProvider)),
 
     vscode.commands.registerCommand("snippet-cat.main.click", path => snippetProvider.click(path)),

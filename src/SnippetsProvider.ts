@@ -3,9 +3,6 @@ import * as fs from "fs";
 import * as path from "path";
 import * as utils from "./utils/global";
 import * as syncs from "./utils/syncs";
-import * as configs from "./utils/configs";
-
-
 
 export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>, vscode.TreeDragAndDropController<SnippetElement> {
   dropMimeTypes = ["application/vnd.code.tree.snippet-cat-view"];
@@ -14,30 +11,29 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   readonly onDidChangeTreeData: vscode.Event<SnippetElement | undefined> = this._onDidChangeTreeData.event;
   public treeExpandList: SnippetElement[];
   public viewTreeMode: boolean;
-  private stockID: number;
+  stockPath = "";
+  hasRoot = false;
   view: any;
+  snippetCatConfig: any;
 
   constructor(context: vscode.ExtensionContext) {
     const snippetTreeView = vscode.window.createTreeView("snippet-cat-view", {
       treeDataProvider: this,
       showCollapseAll: true,
       canSelectMany: true,
-      dragAndDropController: this
-      
+      dragAndDropController: this,
     });
 
     context.subscriptions.push(snippetTreeView);
     this.view = snippetTreeView;
     this.treeExpandList = [];
     this.viewTreeMode = true;
-    this.stockID = -1;
-    configs.initStock(this);
-
+    this.init();
   }
 
   getChildren(element: SnippetElement): Thenable<SnippetElement[]> {
     this.checkRoot();
-    return Promise.resolve(this._getChildren(element ? element.fullPath : this.getStockPath()));
+    return Promise.resolve(this._getChildren(element ? element.fullPath : this.stockPath));
   }
 
   public getTreeItem(element: SnippetElement): vscode.TreeItem {
@@ -132,26 +128,15 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
       Promise.resolve(utils.generateDescription(languageId, selText)).then(data => {
         let { ext, content } = data;
-        const targetPath = path.join(this.getStockPath(), languageId + "." + ext);
+        const targetPath = path.join(this.stockPath, languageId + "." + ext);
         utils.addContentToFile(targetPath, "\n" + content + "\n", this);
         vscode.window.showInformationMessage("已添加到:" + targetPath);
-  
       });
     }
   }
 
-  getStockPath() {
-    if (this.stockID !== -1) {
-      const stockConfig = <string[]>configs.getConfig().get("stockPath");
-      return stockConfig[this.stockID].split("|")[1];
-    } else {
-      return "";
-    }
-  }
-
   async addStockPath() {
-    let [currentMacID, recordID, recordPath] = configs.initStock(this);
-    let recordConfig = <string[]>configs.getConfig().get("stockPath");
+    let recordConfig = this.snippetCatConfig.get("stockPath");
     const options: vscode.OpenDialogOptions = {
       canSelectMany: false,
       openLabel: "Select",
@@ -161,12 +146,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
     await vscode.window.showOpenDialog(options).then(fileUri => {
       if (fileUri && fileUri[0]) {
-        recordConfig[<number>recordID] = currentMacID + "|" + fileUri[0].fsPath;
-        this.stockID = <number>recordID;
-        configs
-          .getConfig()
-          .update("stockPath", recordConfig, vscode.ConfigurationTarget.Global)
-          .then(() => {});
+        this.snippetCatConfig.update("stockPath", fileUri[0].fsPath, vscode.ConfigurationTarget.Global).then(() => {});
         this.refresh();
       } else {
         vscode.window.showInformationMessage("用户取消设置");
@@ -176,6 +156,18 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
   async refresh(): Promise<void> {
     this._onDidChangeTreeData.fire(undefined);
+  }
+
+  init() {
+    this.snippetCatConfig = vscode.workspace.getConfiguration("snippet-cat");
+    this.stockPath = this.snippetCatConfig.get("stockPath");
+    var stat = fs.statSync(this.stockPath);
+    if (!stat.isDirectory()) {
+      this.hasRoot = false;
+      throw new Error("请先添加根目录");
+    } else {
+      this.hasRoot = true;
+    }
   }
 
   viewSwitch() {
@@ -200,17 +192,17 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   checkRoot() {
-    if (this.stockID === -1) {
+    if (!this.hasRoot) {
       throw new Error("请先添加根目录");
     }
   }
 
   async upload() {
-    syncs.syncCloud(this, "上传", "云端", 0);
+    syncs.syncCloud(this, "上传", "云端", 0, this.snippetCatConfig);
   }
 
   async download() {
-    syncs.syncCloud(this, "下载", "本地", 1);
+    syncs.syncCloud(this, "下载", "本地", 1, this.snippetCatConfig);
   }
 
   openGroup(e: SnippetElement) {
@@ -219,9 +211,9 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
   addGroup(e: SnippetElement) {
     this.checkRoot();
-    let folderPath = e ? e.fullPath : this.getStockPath();
+    let folderPath = e ? e.fullPath : this.stockPath;
 
-    let iter = configs.handleSnippets(this, "请输入文件夹名", "", [0, 0]);
+    let iter = this.handleSnippets("请输入文件夹名", "", [0, 0]);
     iter.next().then(
       (data: any) => {
         iter.next([fs.mkdir, path.join(folderPath, data.value)]);
@@ -231,7 +223,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   editGroup(e: SnippetElement) {
-    let iter = configs.handleSnippets(this, "请输入文件夹名", e.basename, [0, e.basename.length]);
+    let iter = this.handleSnippets("请输入文件夹名", e.basename, [0, e.basename.length]);
     iter.next().then(
       (data: any) => {
         iter.next([fs.rename, e.fullPath, path.join(e.fullPath, "..", data.value)]);
@@ -241,7 +233,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   deleteGroup(e: SnippetElement) {
-    let iter = configs.handleSnippets(this, "确认删除", "确认", [0, 2]);
+    let iter = this.handleSnippets("确认删除", "确认", [0, 2]);
     iter.next().then(
       (data: any) => {
         iter.next([fs.rmSync, e.fullPath, { recursive: true, force: true }]);
@@ -250,27 +242,41 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
     );
   }
 
-  async addSnippet(e: SnippetElement) {
-    let lastExt = await configs.getConfig().get("lastFileExt");
+  async *handleSnippets(...args: any[]): any {
+    let [placeHolder, value, valueSelection] = args;
+    let key = await vscode.window.showInputBox({ placeHolder: placeHolder, value: value, valueSelection: valueSelection });
 
-    let iter = configs.handleSnippets(this, "请输入文件名", "." + lastExt, [0, 0]);
+    if (key !== undefined) {
+      let [fun, ...args2] = yield key;
+      fun(...args2, (err: any) => {
+        if (err) {
+          vscode.window.showErrorMessage(err.toString());
+        }
+      });
+      this.refresh();
+    } else {
+      throw new Error("用户未确认");
+    }
+  }
+
+  async addSnippet(e: SnippetElement) {
+    let lastExt = this.snippetCatConfig.get("lastFileExt");
+
+    let iter = this.handleSnippets("请输入文件名", "." + lastExt, [0, 0]);
     iter.next().then(
       (data: any) => {
         let ext = data.value.split(".");
         ext = ext.length > 1 ? ext[1] : "";
 
         iter.next([fs.writeFileSync, path.join(e.fullPath, data.value), ""]);
-        configs
-          .getConfig()
-          .update("lastFileExt", ext, vscode.ConfigurationTarget.Global)
-          .then(() => {});
+        this.snippetCatConfig.update("lastFileExt", ext, vscode.ConfigurationTarget.Global).then(() => {});
       },
       (err: any) => console.log(err)
     );
   }
 
   deleteSnippet(e: SnippetElement) {
-    let iter = configs.handleSnippets(this, "确认删除", "确认", [0, 2]);
+    let iter = this.handleSnippets("确认删除", "确认", [0, 2]);
     iter.next().then(
       (data: any) => {
         iter.next([fs.rmSync, e.fullPath, { recursive: true, force: true }]);
@@ -282,7 +288,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   editSnippet(e: SnippetElement) {
     let ext = path.extname(e.fullPath);
     let endPos = e.basename.length - ext.length;
-    let iter = configs.handleSnippets(this, "请输入新文件名", e.basename, [0, endPos]);
+    let iter = this.handleSnippets("请输入新文件名", e.basename, [0, endPos]);
     iter.next().then(
       (data: any) => {
         iter.next([fs.rename, e.fullPath, path.join(e.fullPath, "..", data.value)]);

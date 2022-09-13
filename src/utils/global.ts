@@ -3,7 +3,7 @@ const fse = require("fs-extra");
 const fs = require("fs");
 const path = require("path");
 import * as vscode from "vscode";
-import getMACID from "getmac";
+
 
 /**
  * @description: 打开目标文件夹 并选择指定路径的文件
@@ -69,8 +69,6 @@ export function recoveryStock(stockPath: string) {
 }
 
 export function addContentToFile(trgPath: string, content: string, srcThis: any) {
-  console.log(trgPath);
-  console.log(content);
   fs.writeFile(
     trgPath,
     content,
@@ -130,9 +128,4 @@ export async function generateDescription(languageId: string, selContent: string
   return { ext, content };
 }
 
-/**
- * @returns 本机MAC地址(string)
- */
-export function getMAC() {
-  return getMACID();
-}
+
