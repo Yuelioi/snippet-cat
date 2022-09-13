@@ -29,6 +29,10 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
     this.treeExpandList = [];
     this.viewTreeMode = true;
     this.init();
+
+    vscode.workspace.onDidChangeConfiguration(() => {
+      this.init();
+    });
   }
 
   getChildren(element: SnippetElement): Thenable<SnippetElement[]> {

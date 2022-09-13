@@ -29,14 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
   const tocProvider = new TOCProvider(context);
 
   context.subscriptions.push(
-    // 监听窗口变化
-    vscode.window.onDidChangeActiveTextEditor(() => {
-      tocProvider.refresh();
-    }),
 
-    vscode.workspace.onDidChangeConfiguration(() => {
-      snippetProvider.init();
-    }),
 
     vscode.commands.registerCommand("snippet-cat.saveToStock", snippetProvider.saveToStock.bind(snippetProvider)),
 
@@ -61,7 +54,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("snippet-cat.outline.click", tocProvider.click.bind(tocProvider)),
     vscode.commands.registerCommand("snippet-cat.outline.copy", tocProvider.copy.bind(tocProvider)),
 
-    vscode.commands.registerCommand("snippet-cat.outline.refresh", tocProvider.refresh.bind(tocProvider)),
-
+    vscode.commands.registerCommand("snippet-cat.outline.refresh", tocProvider.refresh.bind(tocProvider))
   );
 }

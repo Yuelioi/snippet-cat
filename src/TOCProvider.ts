@@ -15,23 +15,26 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
 
     context.subscriptions.push(view);
     this.languageID = vscode.window.activeTextEditor?.document.languageId;
+
+    vscode.window.onDidChangeActiveTextEditor(() => {
+      this.refresh();
+    });
   }
 
   getChildren(element: TOCElement): Thenable<TOCElement[]> {
     const editor = vscode.window.activeTextEditor;
 
-    let documentText: string;
-
     if (editor) {
-      documentText = editor.document.getText();
+      let documentText = editor.document.getText();
       if (this.languageID === "markdown") {
         return Promise.resolve(getMarkdownInfo(documentText));
+      }else{
+        return Promise.resolve(getFunInfo(documentText));
       }
-    } else {
-      documentText = "";
     }
-    return Promise.resolve(getFunInfo(documentText));
+    return Promise.resolve([]);
   }
+  
 
   public getTreeItem(element: TOCElement): vscode.TreeItem {
     const treeItem = this._getTreeItem(element);
@@ -57,8 +60,6 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
 
   // }
 
-
-
   async refresh(): Promise<void> {
     this.languageID = vscode.window.activeTextEditor?.document.languageId;
     this._onDidChangeTreeData.fire(undefined);
@@ -75,7 +76,8 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
       .executeCommand("revealLine", {
         at: "top",
         lineNumber: element.line - 2 < 0 ? element.line : element.line - 2,
-      }).then(() => {
+      })
+      .then(() => {
         vscode.commands.executeCommand("workbench.action.navigateToLastEditLocation").then(() => {
           editor.selection = new vscode.Selection(element.line, 0, element.line + element.length, 0);
         });
