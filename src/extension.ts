@@ -5,7 +5,7 @@ import { SnippetsProvider } from "./SnippetsProvider";
 import { TOCProvider } from "./TOCProvider";
 
 
-import localeEn from "../package.nls.json";
+import localeEn from "../package.nls.en.json";
 import localeJa from "../package.nls.jp.json";
 // import localeZh from "../package.nls.zh-CN.json";
 
@@ -26,6 +26,8 @@ const localeMap = (key : LocaleKeyType) : string => localeString(<any>key);
 export function activate(context: vscode.ExtensionContext) {
   const snippetProvider = new SnippetsProvider(context);
   const tocProvider = new TOCProvider(context);
+  
+  
 
   context.subscriptions.push(
     // 监听窗口变化

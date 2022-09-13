@@ -18,7 +18,7 @@ export function revealFileInOS(path: string) {
  * @param runPath :运行路径
  * @param cmd :指令列表
  */
-export function runCMD(runPath: string, cmd: string,srcThis:any) {
+export function runCMD(runPath: string, cmd: string, srcThis: any) {
   let cmdToProgress = cmd.split("|").join(" && ").replace("%time", getTimeStamp());
 
   try {
@@ -86,6 +86,48 @@ export function addContentToFile(trgPath: string, content: string, srcThis: any)
       }
     }
   );
+}
+
+export async function generateDescription(languageId: string, selContent: string) {
+  const languageList = require("../rules/languageList.json");
+  let ext = "txt";
+
+  let content = "";
+
+  if (Object.hasOwn(languageList, languageId)) {
+    const lanInfo = languageList[languageId];
+
+    ext = lanInfo["ext"];
+    if (ext !== "txt" && ext !== "md") {
+      const name =
+        (await vscode.window.showInputBox({
+          placeHolder: ``,
+          value: `未命名函数`,
+          valueSelection: [0, 5],
+        })) || "未命名函数";
+      const description =
+        (await vscode.window.showInputBox({
+          placeHolder: ``,
+          value: `暂无描述`,
+          valueSelection: [0, 4],
+        })) || "暂无描述";
+      if (lanInfo["comments-start"]) {
+        content = `${lanInfo["comments-start"]}\n${lanInfo["comments-split"]} @start\n${lanInfo["comments-split"]} @name:${name}\n${lanInfo["comments-split"]} @description::${description}\n${lanInfo["comments-end"]}`;
+      }
+      content += "\n" + selContent + "\n";
+      if (lanInfo["comments-oneline"]) {
+        content += `${lanInfo["comments-oneline"]} @end`;
+      } else {
+        content += `${lanInfo["comments-start"]} @end ${lanInfo["comments-end"]}`;
+      }
+    }
+  }
+
+  if (content === "") {
+    content = `${selContent}`;
+  }
+
+  return { ext, content };
 }
 
 /**

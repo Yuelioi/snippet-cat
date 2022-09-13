@@ -2,14 +2,14 @@
   "name": "snippet-cat",
   "displayName": "Snippet Cat",
   "description": "Snippet Collections",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "publisher": "yuelili",
   "icon": "media/logo.png",
   "sponsor": {
     "url": "https://yuelili.com"
   },
   "engines": {
-    "vscode": "^1.60.0"
+    "vscode": "^1.71.0"
   },
   "categories": [
     "Snippets"
@@ -356,9 +356,6 @@
     "del": "^7.0.0",
     "eslint": "^8.20.0",
     "glob": "^8.0.3",
-    "gulp": "^4.0.2",
-    "gulp-sourcemaps": "^3.0.0",
-    "gulp-typescript": "^6.0.0-alpha.1",
     "mocha": "^10.0.0",
     "nodemon": "^2.0.19",
     "run-sequence": "^2.2.1",
