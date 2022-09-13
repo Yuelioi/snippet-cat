@@ -6,6 +6,8 @@ import * as utils from "./utils/global";
 import * as syncs from "./utils/syncs";
 import * as configs from "./utils/configs";
 
+import languageList from "../languageList.json";
+
 export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>, vscode.TreeDragAndDropController<SnippetElement> {
   dropMimeTypes = ["application/vnd.code.tree.snippet-cat-view"];
   dragMimeTypes = ["text/uri-list"];
@@ -14,15 +16,18 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   public treeExpandList: SnippetElement[];
   public viewType: boolean;
   private stockID: number;
+  view:any;
 
   constructor(context: vscode.ExtensionContext) {
-    const view = vscode.window.createTreeView("snippet-cat-view", {
+    const snippetTreeView = vscode.window.createTreeView("snippet-cat-view", {
       treeDataProvider: this,
       showCollapseAll: true,
       canSelectMany: true,
       dragAndDropController: this,
     });
-    context.subscriptions.push(view);
+
+    context.subscriptions.push(snippetTreeView);
+    this.view = snippetTreeView;
     this.treeExpandList = [];
     this.viewType = true;
     this.stockID = -1;
@@ -38,11 +43,11 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
     const treeItem = this._getTreeItem(element.fullPath);
     return treeItem;
   }
-  /**
-   * @description :111
-   * @param fullPath
-   * @returns
-   */
+
+  // getParent(element:SnippetElement){
+  //   return this._getTreeElement(path.dirname(element.fullPath));
+  // }
+  
   _getTreeItem(fullPath: string): SnippetItem {
     const treeElement = this._getTreeElement(fullPath);
     return new SnippetItem(
@@ -84,7 +89,9 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
     if (_this.viewType) {
       return tree;
     } else {
-      return this.treeExpandList.sort((el1: SnippetElement, el2: SnippetElement) => path.extname(el1.fullPath).toUpperCase() < path.extname(el2.fullPath).toUpperCase()?-1:1);
+      return this.treeExpandList.sort((el1: SnippetElement, el2: SnippetElement) =>
+        path.extname(el1.fullPath).toUpperCase() < path.extname(el2.fullPath).toUpperCase() ? -1 : 1
+      );
     }
   }
 
@@ -115,6 +122,23 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
     this.treeExpandList = element;
   }
 
+  saveToStock() {
+    let editor = vscode.window.activeTextEditor;
+    if (editor) {
+      const selText = editor.document.getText(editor.selection);
+
+      const languageId = editor.document.languageId;
+      let ext = "txt";
+      if (Object.hasOwn(languageList, languageId)) {
+        ext = languageList[languageId as keyof typeof languageList];
+      }
+      const targetPath = path.join(this.getStockPath(), languageId + "." + ext);
+      utils.addContentToFile(targetPath, "\n" + selText + "\n",this);
+
+      vscode.window.showInformationMessage("已添加到:" + targetPath);
+    }
+  }
+
   getStockPath() {
     if (this.stockID !== -1) {
       const stockConfig = <string[]>configs.getConfig().get("stockPath");
@@ -125,6 +149,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   async addStockPath() {
+    
     let [currentMacID, recordID, recordPath] = configs.initStock(this);
     let recordConfig = <string[]>configs.getConfig().get("stockPath");
     const options: vscode.OpenDialogOptions = {
@@ -160,6 +185,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   click(filePath: string) {
+    
     var openPath = vscode.Uri.parse("file:///" + filePath.split(`\\`).join(`/`)); //A request file path
     vscode.workspace.openTextDocument(openPath).then(doc => {
       vscode.window.showTextDocument(doc);
@@ -167,7 +193,10 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   // TODO
-  search(element: any) {
+  search() {
+    console.log(111);
+    this.view.reveal();
+    this.view.reveal(this._getTreeElement("E:\\Project\\Snippet Cat\\PHP\\1.PHP"), { select: true, focus: true, expand: true });
     // this.treeExpandList.reveal(element, { select: true, focus: true, expand: true });
   }
 
@@ -190,6 +219,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   addGroup(e: SnippetElement) {
+    
     this.checkRoot();
     let folderPath = e ? e.fullPath : this.getStockPath();
 
@@ -224,7 +254,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
   async addSnippet(e: SnippetElement) {
     let lastExt = await configs.getConfig().get("lastFileExt");
-  
+
     let iter = configs.handleSnippets(this, "请输入文件名", "." + lastExt, [0, 0]);
     iter.next().then(
       (data: any) => {
@@ -252,6 +282,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   editSnippet(e: SnippetElement) {
+    
     let ext = path.extname(e.fullPath);
     let endPos = e.basename.length - ext.length;
     let iter = configs.handleSnippets(this, "请输入新文件名", e.basename, [0, endPos]);

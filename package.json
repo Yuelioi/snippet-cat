@@ -9,7 +9,7 @@
     "url": "https://yuelili.com"
   },
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.60.0"
   },
   "categories": [
     "Snippets"
@@ -22,7 +22,7 @@
     "viewsWelcome": [
       {
         "view": "snippet-cat-view",
-        "contents": "还没有设置储存目录[learn more](https://github.com/Yuelioi/snippet-cat/).\n[添加储存目录](command:snippet-cat.main.addStockPath)"
+        "contents": "Not set stock path yet [learn more](https://github.com/Yuelioi/snippet-cat/).\n[Add Now](command:snippet-cat.main.addStockPath)"
       }
     ],
     "viewsContainers": {
@@ -38,25 +38,25 @@
       "snippetCat": [
         {
           "id": "snippet-cat-view",
-          "name": "片段管理器",
+          "name": "%snippet-cat-view-name%",
           "icon": "media/cat.svg",
           "contextualTitle": "Explorer"
         },
         {
           "id": "snippet-cat-outline",
-          "name": "大纲",
+          "name": "%snippet-cat-outline-name%",
           "icon": "media/cat.svg",
           "contextualTitle": "Outline"
         }
       ]
     },
     "configuration": {
-      "title": "Snippet Cat",
+      "title": "%snippet-cat-title%",
       "properties": {
         "snippet-cat.lastFileExt": {
           "type": "string",
           "default": "js",
-          "description": "新增代码片段默认文件后缀"
+          "description": "%snippet-cat.lastFileExt%"
         },
         "snippet-cat.sysnModel": {
           "type": "string",
@@ -66,8 +66,8 @@
             "webdav"
           ],
           "enumDescriptions": [
-            "使用webdav进行同步,请设置webdav信息",
-            "使用github进行同步(开发中...)"
+            "%snippet-cat.sysnModel1%",
+            "%snippet-cat.sysnModel2%"
           ]
         },
         "snippet-cat.github": {
@@ -80,12 +80,12 @@
             "pull": {
               "type": "string",
               "default": "git pull origin",
-              "description": "pull 指令"
+              "description": "%snippet-cat.github-pull%"
             },
             "push": {
               "type": "string",
               "default": "git add .|git commit -m '%time'|git push",
-              "description": "push 指令"
+              "description": "%snippet-cat.github-push%"
             }
           },
           "required": [
@@ -93,7 +93,7 @@
             "push"
           ],
           "additionalProperties": false,
-          "description": "GITHUB 设置"
+          "description": "%snippet-cat.github%"
         },
         "snippet-cat.webdav": {
           "type": "object",
@@ -107,17 +107,18 @@
               "type": "string",
               "default": "https://",
               "pattern": "(^http[s]?://)(.+)$",
-              "description": "WebDAV的地址"
+              "description": "%snippet-cat.webdav-url%WebDAV的地址"
             },
             "username": {
               "type": "string",
               "default": "",
-              "description": ""
+              "description": "%snippet-cat.webdav-username%"
             },
             "password": {
               "type": "string",
               "default": "",
-              "pattern": ""
+              "pattern": "",
+              "description": "%snippet-cat.webdav-password%"
             }
           },
           "required": [
@@ -126,7 +127,7 @@
             "password"
           ],
           "additionalProperties": false,
-          "description": "WEBDAV 设置"
+          "description": "%snippet-cat.webdav%"
         },
         "snippet-cat.stockPath": {
           "type": "array",
@@ -139,7 +140,7 @@
           "items": {
             "type": "string"
           },
-          "description": "记录MAC $& STOCK PATH",
+          "description": "%snippet-cat.stockPath%",
           "scope": "resource"
         }
       }
@@ -147,100 +148,109 @@
     "commands": [
       {
         "command": "snippet-cat.main.search",
-        "title": "Search",
+        "title": "%snippet-cat.main.search%",
         "category": "Snippet Cat",
         "icon": "$(search)"
       },
       {
         "command": "snippet-cat.main.viewSwitch",
-        "title": "Switch View",
+        "title": "%snippet-cat.main.viewSwitch%",
         "category": "Snippet Cat",
         "icon": "$(testing-show-as-list-icon)"
       },
       {
         "command": "snippet-cat.main.download",
-        "title": "Download",
+        "title": "%snippet-cat.main.download%",
         "category": "Snippet Cat",
         "icon": "$(cloud-download)"
       },
       {
         "command": "snippet-cat.main.upload",
-        "title": "Upload",
+        "title": "%snippet-cat.main.upload%",
         "category": "Snippet Cat",
         "icon": "$(cloud-upload)"
       },
       {
         "command": "snippet-cat.main.refresh",
-        "title": "Refresh",
+        "title": "%snippet-cat.main.refresh%",
         "category": "Snippet Cat",
         "icon": "$(refresh)"
       },
       {
         "command": "snippet-cat.main.addStockPath",
-        "title": "Add Stock Path",
+        "title": "%snippet-cat.main.addStockPath%",
         "category": "Snippet Cat",
         "icon": "$(folder-opened)"
       },
       {
         "command": "snippet-cat.main.addGroup",
-        "title": "Add Group",
+        "title": "%snippet-cat.main.addGroup%",
         "category": "Snippet Cat",
         "icon": "$(file-directory-create)"
       },
       {
         "command": "snippet-cat.main.editGroup",
-        "title": "Edit Group",
+        "title": "%snippet-cat.main.editGroup%",
         "category": "Snippet Cat",
         "icon": "$(edit)"
       },
       {
         "command": "snippet-cat.main.deleteGroup",
-        "title": "Delete Group",
+        "title": "%snippet-cat.main.deleteGroup%",
         "category": "Snippet Cat",
         "icon": "$(trash)"
       },
       {
         "command": "snippet-cat.main.openGroup",
-        "title": "Open in System File Explorer",
+        "title": "%snippet-cat.main.openGroup%",
         "category": "Snippet Cat",
         "icon": "$(folder-opened)"
       },
       {
         "command": "snippet-cat.main.addSnippet",
-        "title": "Add Snippet",
+        "title": "%snippet-cat.main.addSnippet%",
         "category": "Snippet Cat",
         "icon": "$(new-file)"
       },
       {
         "command": "snippet-cat.main.editSnippet",
-        "title": "Edit Snippet",
+        "title": "%snippet-cat.main.editSnippet%",
         "category": "Snippet Cat",
         "icon": "$(pencil)"
       },
       {
         "command": "snippet-cat.main.deleteSnippet",
-        "title": "Delete Snippet",
+        "title": "%snippet-cat.main.deleteSnippet%",
         "category": "Snippet Cat",
         "icon": "$(trash)"
       },
       {
         "command": "snippet-cat.outline.refresh",
-        "title": "Refresh",
+        "title": "%snippet-cat.outline.refresh%",
         "category": "outline",
         "icon": "$(refresh)"
-      }
-      ,
+      },
       {
         "command": "snippet-cat.outline.copy",
-        "title": "Copy",
+        "title": "%snippet-cat.outline.copy%",
         "category": "outline",
         "icon": {
           "dark": "media/icons/interface/dark/copy.svg",
           "light": "media/icons/interface/light/copy.svg"
         }
+      },
+      {
+        "command": "snippet-cat.saveToStock",
+        "title": "save To Stock"
       }
     ],
     "menus": {
+      "editor/context": [
+        {
+          "command": "snippet-cat.saveToStock",
+          "group": "Snippet Cat"
+        }
+      ],
       "view/title": [
         {
           "command": "snippet-cat.main.viewSwitch",
@@ -275,7 +285,6 @@
           "command": "snippet-cat.main.addStockPath",
           "when": "view == snippet-cat-view"
         },
-       
         {
           "command": "snippet-cat.outline.refresh",
           "when": "view == snippet-cat-outline"
@@ -344,18 +353,25 @@
     "@typescript-eslint/eslint-plugin": "^5.31.0",
     "@typescript-eslint/parser": "^5.31.0",
     "@vscode/test-electron": "^2.1.5",
+    "del": "^7.0.0",
     "eslint": "^8.20.0",
     "glob": "^8.0.3",
+    "gulp": "^4.0.2",
+    "gulp-sourcemaps": "^3.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "mocha": "^10.0.0",
     "nodemon": "^2.0.19",
+    "run-sequence": "^2.2.1",
     "ts-loader": "^9.3.1",
     "typescript": "^4.7.4",
+    "vscode-nls-dev": "^4.0.1",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
     "fs-extra": "^10.1.0",
     "getmac": "^5.20.0",
+    "vscode-nls": "^5.2.0",
     "webdav": "^4.11.0"
   },
   "repository": {

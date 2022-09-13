@@ -5,7 +5,6 @@ const path = require("path");
 import * as vscode from "vscode";
 import getMACID from "getmac";
 
-
 /**
  * @description: 打开目标文件夹 并选择指定路径的文件
  * @tutorial: https://stackoverflow.com/questions/64320632/node-js-child-process-spawning-explorer-with-select-option-does-not-work-wi
@@ -19,12 +18,13 @@ export function revealFileInOS(path: string) {
  * @param runPath :运行路径
  * @param cmd :指令列表
  */
-export function runCMD(runPath: string, cmd: string) {
-  let cmdToProgress = cmd.split("|").join(" && ").replace("%time",getTimeStamp());
+export function runCMD(runPath: string, cmd: string,srcThis:any) {
+  let cmdToProgress = cmd.split("|").join(" && ").replace("%time", getTimeStamp());
 
   try {
-    execSync(cmdToProgress, { cwd: runPath});
-  } catch (e:any) {
+    execSync(cmdToProgress, { cwd: runPath });
+    srcThis.refresh();
+  } catch (e: any) {
     vscode.window.showErrorMessage(e);
   }
   return;
@@ -68,10 +68,29 @@ export function recoveryStock(stockPath: string) {
   fse.moveSync(tempFolder, path.join(recoveryPath, timeStamp));
 }
 
+export function addContentToFile(trgPath: string, content: string, srcThis: any) {
+  console.log(trgPath);
+  console.log(content);
+  fs.writeFile(
+    trgPath,
+    content,
+    {
+      encoding: "utf8",
+      flag: "a",
+    },
+    (err: any) => {
+      if (err) {
+        console.log(err);
+      } else {
+        srcThis.refresh();
+      }
+    }
+  );
+}
 
 /**
  * @returns 本机MAC地址(string)
  */
-export function getMAC(){
+export function getMAC() {
   return getMACID();
 }

@@ -89,12 +89,12 @@ export async function uploadDepsFiles(loaclFolderPath: string, syncFolderPath: s
 }
 
 /**
- * @param srcThis 
+ * @param srcThis
  * @param syncInfo 上传|下载
  * @param localInfo 云端|本地
  * @param syncMode 0|1 上传|下载
  */
-export async function syncCloud(srcThis: any,syncInfo:string,localInfo:string,syncMode:0|1) {
+export async function syncCloud(srcThis: any, syncInfo: string, localInfo: string, syncMode: 0 | 1) {
   srcThis.checkRoot();
 
   let key = await vscode.window.showInputBox({
@@ -105,19 +105,17 @@ export async function syncCloud(srcThis: any,syncInfo:string,localInfo:string,sy
 
   if (key) {
     vscode.window.showInformationMessage("正在备份中");
-    const stockPath =srcThis.getStockPath().split("\\").join("/");
-    
+    const stockPath = srcThis.getStockPath().split("\\").join("/");
+
     utils.recoveryStock(stockPath);
     vscode.window.showInformationMessage("备份成功");
     const sysnModel = configs.getConfig().get("sysnModel");
 
     if (sysnModel === "github") {
       vscode.window.showInformationMessage(`正在使用GITHUB${syncInfo}`);
-      let { push,pull} = <any>configs.getConfig().get("github");
-      
-      
-      utils.runCMD(stockPath,[push,pull][syncMode] );
+      let { push, pull } = <any>configs.getConfig().get("github");
 
+      utils.runCMD(stockPath, [push, pull][syncMode], srcThis);
     } else if (sysnModel === "webdav") {
       let { url, username, password } = <any>configs.getConfig().get("webdav");
       const client = createClient(url, {
@@ -131,14 +129,15 @@ export async function syncCloud(srcThis: any,syncInfo:string,localInfo:string,sy
         }
 
         vscode.window.showInformationMessage(`正在使用WEBDAV${syncInfo}`);
-        if(syncMode === 0){
-          syncs.uploadDepsFiles(stockPath, "/Snippet Cat", client);
-        }else{
-          syncs.downloadDepsFiles(stockPath, "/Snippet Cat", client);
+        if (syncMode === 0) {
+          await syncs.uploadDepsFiles(stockPath, "/Snippet Cat", client);
+          vscode.window.showInformationMessage("${syncInfo}完毕");
+        } else {
+          await syncs.downloadDepsFiles(stockPath, "/Snippet Cat", client);
+          vscode.window.showInformationMessage("${syncInfo}完毕");
+          srcThis.refresh();
         }
-        
-        vscode.window.showInformationMessage("${syncInfo}完毕");
-        srcThis.refresh();
+
       } catch (e: any) {
         vscode.window.showErrorMessage(e.message);
       }

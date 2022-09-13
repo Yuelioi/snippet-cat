@@ -23,8 +23,7 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
     let documentText: string;
 
     if (editor) {
-      let document = editor.document;
-      documentText = document.getText();
+      documentText = editor.document.getText();
       if (this.languageID === "markdown") {
         return Promise.resolve(getMarkdownInfo(documentText));
       }

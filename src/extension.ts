@@ -4,18 +4,36 @@ import * as vscode from "vscode";
 import { SnippetsProvider } from "./SnippetsProvider";
 import { TOCProvider } from "./TOCProvider";
 
+
+import localeEn from "../package.nls.json";
+import localeJa from "../package.nls.jp.json";
+// import localeZh from "../package.nls.zh-CN.json";
+
+
+export type LocaleKeyType = keyof typeof localeEn;
+
+interface LocaleEntry
+{
+    [key : string] : string;
+}
+const localeTableKey = vscode.env.language;
+const localeTable = Object.assign(localeEn, ((<{[key : string] : LocaleEntry}>{
+    ja : localeJa
+})[localeTableKey] || { }));
+const localeString = (key : string) : string => localeTable[key] || key;
+const localeMap = (key : LocaleKeyType) : string => localeString(<any>key);
+
 export function activate(context: vscode.ExtensionContext) {
   const snippetProvider = new SnippetsProvider(context);
   const tocProvider = new TOCProvider(context);
 
-  
   context.subscriptions.push(
-
     // 监听窗口变化
     vscode.window.onDidChangeActiveTextEditor(() => {
-   
       tocProvider.refresh();
     }),
+
+    vscode.commands.registerCommand("snippet-cat.saveToStock", snippetProvider.saveToStock.bind(snippetProvider)),
 
 
     vscode.commands.registerCommand("snippet-cat.main.click", path => snippetProvider.click(path)),
@@ -36,11 +54,9 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("snippet-cat.main.editSnippet", snippetProvider.editSnippet.bind(snippetProvider)),
     vscode.commands.registerCommand("snippet-cat.main.deleteSnippet", snippetProvider.deleteSnippet.bind(snippetProvider)),
 
-
-
     vscode.commands.registerCommand("snippet-cat.outline.click", tocProvider.click.bind(tocProvider)),
     vscode.commands.registerCommand("snippet-cat.outline.copy", tocProvider.copy.bind(tocProvider)),
-    
+
     vscode.commands.registerCommand("snippet-cat.outline.refresh", tocProvider.refresh.bind(tocProvider))
     // 函数测试用
     // vscode.commands.registerCommand("snippet-cat.outline.test", tocProvider.test.bind(tocProvider)),
