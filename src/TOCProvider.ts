@@ -2,21 +2,27 @@ import * as vscode from "vscode";
 import * as path from "path";
 
 import { TOCElement, getFunInfo, getMarkdownInfo } from "./utils/tocs";
+import { runSnippet } from "./utils/global";
 
 export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
   private _onDidChangeTreeData: vscode.EventEmitter<TOCElement | undefined> = new vscode.EventEmitter<TOCElement | undefined>();
   readonly onDidChangeTreeData: vscode.Event<TOCElement | undefined> = this._onDidChangeTreeData.event;
   languageID: string | undefined;
+  snippetProvider: any;
 
-  constructor(context: vscode.ExtensionContext) {
+  constructor(context: vscode.ExtensionContext, snippetProvider: any) {
     const view = vscode.window.createTreeView("snippet-cat-outline", {
       treeDataProvider: this,
     });
 
+    this.snippetProvider = snippetProvider;
+
     context.subscriptions.push(view);
     this.languageID = vscode.window.activeTextEditor?.document.languageId;
-
     vscode.window.onDidChangeActiveTextEditor(() => {
+      this.refresh();
+    });
+    vscode.workspace.onDidSaveTextDocument(() => {
       this.refresh();
     });
   }
@@ -28,13 +34,12 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
       let documentText = editor.document.getText();
       if (this.languageID === "markdown") {
         return Promise.resolve(getMarkdownInfo(documentText));
-      }else{
+      } else {
         return Promise.resolve(getFunInfo(documentText));
       }
     }
     return Promise.resolve([]);
   }
-  
 
   public getTreeItem(element: TOCElement): vscode.TreeItem {
     const treeItem = this._getTreeItem(element);
@@ -61,6 +66,7 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
   // }
 
   async refresh(): Promise<void> {
+    console.log(this.snippetProvider.fileInfoList);
     this.languageID = vscode.window.activeTextEditor?.document.languageId;
     this._onDidChangeTreeData.fire(undefined);
   }
@@ -68,10 +74,7 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
   // 单击大纲 移动到对应函数上面2行 并选中
   // ref:// https://code.visualstudio.com/api/references/commands
   async click(element: TOCElement) {
-    let editor = <any>vscode.window.activeTextEditor;
-
-    editor.selection = new vscode.Selection(element.line, 0, element.line + element.length, 0);
-
+    const editor = <any>vscode.window.activeTextEditor;
     await vscode.commands
       .executeCommand("revealLine", {
         at: "top",
@@ -79,13 +82,38 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
       })
       .then(() => {
         vscode.commands.executeCommand("workbench.action.navigateToLastEditLocation").then(() => {
-          editor.selection = new vscode.Selection(element.line, 0, element.line + element.length, 0);
+          editor.selection = new vscode.Selection(
+            element.line,
+            0,
+            element.line + element.length,
+            editor.document.lineAt(element.line + element.length).text.length
+          );
         });
       });
   }
+
+  run(element: TOCElement) {
+    const editor = <any>vscode.window.activeTextEditor;
+    editor.selection = new vscode.Selection(
+      element.line,
+      0,
+      element.line + element.length,
+      editor.document.lineAt(element.line + element.length).text.length
+    );
+    const selText = editor.document.getText(editor.selection);
+    runSnippet(selText);
+  }
+
+  async insertSnippet(){
+    const value = await vscode.window.showQuickPick(['explorer', 'search', 'scm', 'debug', 'extensions'], { placeHolder: 'Select the view to show when opening a window.' });
+  }
+
   copy(element: TOCElement) {
     this.click(element);
-    vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+    setTimeout(() => {
+      vscode.commands.executeCommand("editor.action.clipboardCopyAction");
+      vscode.window.showInformationMessage("已复制到剪切板");
+    }, 500);
   }
 }
 

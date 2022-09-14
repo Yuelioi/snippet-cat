@@ -15,6 +15,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   hasRoot = false;
   view: any;
   snippetCatConfig: any;
+  fileInfoList: any;
 
   constructor(context: vscode.ExtensionContext) {
     const snippetTreeView = vscode.window.createTreeView("snippet-cat-view", {
@@ -29,10 +30,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
     this.treeExpandList = [];
     this.viewTreeMode = true;
     this.init();
-
-    vscode.workspace.onDidChangeConfiguration(() => {
-      this.init();
-    });
+    this.fileInfoList={};
   }
 
   getChildren(element: SnippetElement): Thenable<SnippetElement[]> {
@@ -52,6 +50,16 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
   _getTreeItem(fullPath: string): SnippetItem {
     const treeElement = this._getTreeElement(fullPath);
+    if (!treeElement.isDir) {
+      try {
+        this.fileInfoList["hh"] = 1;
+        console.log(path.parse(treeElement.fullPath));
+        this.fileInfoList[path.parse(treeElement.fullPath).name] = treeElement;
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
     return new SnippetItem(
       treeElement,
       treeElement.basename,
@@ -100,13 +108,13 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   // Drag and drop
   public async handleDrop(target: SnippetElement, sources: vscode.DataTransfer, token: vscode.CancellationToken): Promise<void> {
     const transferItem = sources.get("application/vnd.code.tree.snippet-cat-view");
-    if (!transferItem) {
+    if (!transferItem || !this.viewTreeMode) {
       return;
     }
     const srcTreeElemtents: SnippetElement[] = transferItem.value;
 
     srcTreeElemtents.forEach(el => {
-      fs.rename(el.fullPath, path.join(target.dirPath, el.basename), function (err) {
+      fs.rename(el.fullPath, path.join(target ? target.dirPath : this.stockPath, el.basename), function (err) {
         if (err) {
           throw err;
         }
@@ -140,7 +148,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
   }
 
   async addStockPath() {
-    let recordConfig = this.snippetCatConfig.get("stockPath");
+    const _this = this;
     const options: vscode.OpenDialogOptions = {
       canSelectMany: false,
       openLabel: "Select",
@@ -150,8 +158,11 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
     await vscode.window.showOpenDialog(options).then(fileUri => {
       if (fileUri && fileUri[0]) {
-        this.snippetCatConfig.update("stockPath", fileUri[0].fsPath, vscode.ConfigurationTarget.Global).then(() => {});
-        this.refresh();
+        this.snippetCatConfig.update("stockPath", fileUri[0].fsPath, vscode.ConfigurationTarget.Global).then(() => {
+          _this.stockPath = fileUri[0].fsPath;
+          _this.hasRoot = true;
+          _this.refresh();
+        });
       } else {
         vscode.window.showInformationMessage("用户取消设置");
       }
@@ -164,13 +175,19 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
   init() {
     this.snippetCatConfig = vscode.workspace.getConfiguration("snippet-cat");
-    this.stockPath = this.snippetCatConfig.get("stockPath");
-    var stat = fs.statSync(this.stockPath);
-    if (!stat.isDirectory()) {
-      this.hasRoot = false;
-      throw new Error("请先添加根目录");
-    } else {
-      this.hasRoot = true;
+    const localPath = this.snippetCatConfig.get("stockPath").toString();
+    try {
+      var stat = fs.statSync(localPath);
+      if (!stat.isDirectory()) {
+        this.hasRoot = false;
+        throw new Error("请先添加根目录");
+      } else {
+        this.stockPath = localPath;
+        this.hasRoot = true;
+        this.refresh();
+      }
+    } catch (e: any) {
+      console.error(e.message);
     }
   }
 

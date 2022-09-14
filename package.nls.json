@@ -17,7 +17,7 @@
   "snippet-cat.main.viewSwitch":"切换视图",
   "snippet-cat.main.download":"下载",
   "snippet-cat.main.upload":"上传",
-  "snippet-cat.main.refresh":"刷新",
+  "snippet-cat.main.init":"重新加载",
   "snippet-cat.main.addStockPath":"添加储存目录",
   "snippet-cat.main.addGroup":"添加组",
   "snippet-cat.main.editGroup":"编辑组",
@@ -27,5 +27,6 @@
   "snippet-cat.main.editSnippet":"重命名",
   "snippet-cat.main.deleteSnippet":"删除代码片段",
   "snippet-cat.outline.refresh":"刷新",
-  "snippet-cat.outline.copy":"复制"
+  "snippet-cat.outline.copy":"复制",
+  "snippet-cat.outline.run":"运行"
 }

@@ -162,8 +162,8 @@
         "icon": "$(cloud-upload)"
       },
       {
-        "command": "snippet-cat.main.refresh",
-        "title": "%snippet-cat.main.refresh%",
+        "command": "snippet-cat.main.init",
+        "title": "%snippet-cat.main.init%",
         "category": "Snippet Cat",
         "icon": "$(refresh)"
       },
@@ -222,6 +222,12 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "snippet-cat.outline.run",
+        "title": "%snippet-cat.outline.run%",
+        "category": "outline",
+        "icon": "$(testing-run-icon)"
+      },
+      {
         "command": "snippet-cat.outline.copy",
         "title": "%snippet-cat.outline.copy%",
         "category": "outline",
@@ -269,7 +275,7 @@
           "group": "navigation@1"
         },
         {
-          "command": "snippet-cat.main.refresh",
+          "command": "snippet-cat.main.init",
           "when": "view == snippet-cat-view"
         },
         {
@@ -321,6 +327,11 @@
           "command": "snippet-cat.outline.copy",
           "when": "view == snippet-cat-outline && viewItem == Title",
           "group": "inline@1"
+        },
+        {
+          "command": "snippet-cat.outline.run",
+          "when": "view == snippet-cat-outline && viewItem == Title && resourceExtname == .bat",
+          "group": "inline@2"
         }
       ]
     }

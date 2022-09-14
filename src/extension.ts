@@ -26,7 +26,7 @@ const localeMap = (key: LocaleKeyType): string => localeString(<any>key);
 
 export function activate(context: vscode.ExtensionContext) {
   const snippetProvider = new SnippetsProvider(context);
-  const tocProvider = new TOCProvider(context);
+  const tocProvider = new TOCProvider(context,snippetProvider);
 
   context.subscriptions.push(
 
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand("snippet-cat.main.upload", snippetProvider.upload.bind(snippetProvider)),
     vscode.commands.registerCommand("snippet-cat.main.download", snippetProvider.download.bind(snippetProvider)),
-    vscode.commands.registerCommand("snippet-cat.main.refresh", snippetProvider.refresh.bind(snippetProvider)),
+    vscode.commands.registerCommand("snippet-cat.main.init", snippetProvider.init.bind(snippetProvider)),
     vscode.commands.registerCommand("snippet-cat.main.search", snippetProvider.search.bind(snippetProvider)),
     vscode.commands.registerCommand("snippet-cat.main.addStockPath", snippetProvider.addStockPath.bind(snippetProvider)),
 
@@ -51,8 +51,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("snippet-cat.main.editSnippet", snippetProvider.editSnippet.bind(snippetProvider)),
     vscode.commands.registerCommand("snippet-cat.main.deleteSnippet", snippetProvider.deleteSnippet.bind(snippetProvider)),
 
+    vscode.commands.registerCommand("snippet-cat.outline.insertSnippet", tocProvider.insertSnippet.bind(tocProvider)),
     vscode.commands.registerCommand("snippet-cat.outline.click", tocProvider.click.bind(tocProvider)),
     vscode.commands.registerCommand("snippet-cat.outline.copy", tocProvider.copy.bind(tocProvider)),
+    vscode.commands.registerCommand("snippet-cat.outline.run", tocProvider.run.bind(tocProvider)),
 
     vscode.commands.registerCommand("snippet-cat.outline.refresh", tocProvider.refresh.bind(tocProvider))
   );

@@ -30,6 +30,15 @@ export function runCMD(runPath: string, cmd: string, srcThis: any) {
   return;
 }
 
+export function runSnippet( cmd: string) {
+  try {
+    execSync(cmd);
+  } catch (e: any) {
+    vscode.window.showErrorMessage(e);
+  }
+  return;
+}
+
 /**
  * @description : 获取时间戳
  * @returns :YYYYMMDDHHMMss (string)
@@ -89,7 +98,6 @@ export function addContentToFile(trgPath: string, content: string, srcThis: any)
 export async function generateDescription(languageId: string, selContent: string) {
   const languageList = require("../rules/languageList.json");
   let ext = "txt";
-
   let content = "";
 
   if (Object.hasOwn(languageList, languageId)) {
@@ -111,8 +119,12 @@ export async function generateDescription(languageId: string, selContent: string
         })) || "暂无描述";
       if (lanInfo["comments-start"]) {
         content = `${lanInfo["comments-start"]}\n${lanInfo["comments-split"]} @start\n${lanInfo["comments-split"]} @name:${name}\n${lanInfo["comments-split"]} @description::${description}\n${lanInfo["comments-end"]}`;
+      }else{
+        content = `${lanInfo["comments-oneline"]} @start\n${lanInfo["comments-oneline"]} @name:${name}\n${lanInfo["comments-oneline"]} @description::${description}`;
       }
+
       content += "\n" + selContent + "\n";
+
       if (lanInfo["comments-oneline"]) {
         content += `${lanInfo["comments-oneline"]} @end`;
       } else {

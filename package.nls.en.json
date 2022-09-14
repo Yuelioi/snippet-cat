@@ -17,7 +17,7 @@
   "snippet-cat.main.viewSwitch":"Switch View",
   "snippet-cat.main.download":"Download",
   "snippet-cat.main.upload":"Upload",
-  "snippet-cat.main.refresh":"Refresh",
+  "snippet-cat.main.refresh":"Reload",
   "snippet-cat.main.addStockPath":"Add Stock Path",
   "snippet-cat.main.addGroup":"Add Group",
   "snippet-cat.main.editGroup":"Edit Group",
@@ -27,5 +27,6 @@
   "snippet-cat.main.editSnippet":"Edit Snippet",
   "snippet-cat.main.deleteSnippet":"Delete Snippet",
   "snippet-cat.outline.refresh":"Refresh",
-  "snippet-cat.outline.copy":"Copy"
+  "snippet-cat.outline.copy":"Copy",
+  "snippet-cat.outline.run":"Run"
 }

@@ -251,7 +251,7 @@ class SnippetsProvider {
     }
     // TODO
     search() {
-        console.log(111);
+   
         this.view.reveal();
         this.view.reveal(this._getTreeElement("E:\\Project\\Snippet Cat\\PHP\\1.PHP"), { select: true, focus: true, expand: true });
         // this.treeExpandList.reveal(element, { select: true, focus: true, expand: true });
