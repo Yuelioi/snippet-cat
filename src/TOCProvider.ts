@@ -66,8 +66,8 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
   // }
 
   async refresh(): Promise<void> {
-    console.log(this.snippetProvider.fileInfoList);
-    this.languageID = vscode.window.activeTextEditor?.document.languageId;
+    
+    // this.languageID = vscode.window.activeTextEditor?.document.languageId;
     this._onDidChangeTreeData.fire(undefined);
   }
 

@@ -30,7 +30,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
     this.treeExpandList = [];
     this.viewTreeMode = true;
     this.init();
-    this.fileInfoList={};
+    this.fileInfoList = {};
   }
 
   getChildren(element: SnippetElement): Thenable<SnippetElement[]> {
@@ -206,7 +206,7 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
 
   // TODO
   search() {
-    console.log(111);
+
     this.view.reveal();
     this.view.reveal(this._getTreeElement("E:\\Project\\Snippet Cat\\PHP\\1.PHP"), { select: true, focus: true, expand: true });
     // this.treeExpandList.reveal(element, { select: true, focus: true, expand: true });
@@ -290,7 +290,10 @@ export class SnippetsProvider implements vscode.TreeDataProvider<SnippetElement>
         ext = ext.length > 1 ? ext[1] : "";
 
         iter.next([fs.writeFileSync, path.join(e.fullPath, data.value), ""]);
-        this.snippetCatConfig.update("lastFileExt", ext, vscode.ConfigurationTarget.Global).then(() => {});
+
+        this.snippetCatConfig.update("lastFileExt", ext, vscode.ConfigurationTarget.Global).then(() => {
+          this.snippetCatConfig = vscode.workspace.getConfiguration("snippet-cat");
+        });
       },
       (err: any) => console.log(err)
     );
