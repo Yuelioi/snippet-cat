@@ -11,10 +11,10 @@ export class SnippetsProvider
 {
     dropMimeTypes = ['application/vnd.code.tree.snippet-cat-view'];
     dragMimeTypes = ['text/uri-list'];
-    private _onDidChangeTreeData: vscode.EventEmitter<SnippetElement | undefined> = new vscode.EventEmitter<
-        SnippetElement | undefined
+    private _onDidChangeTreeData: vscode.EventEmitter<SnippetElement | undefined | null | void> = new vscode.EventEmitter<
+        SnippetElement | undefined | null | void
     >();
-    readonly onDidChangeTreeData: vscode.Event<SnippetElement | undefined> = this._onDidChangeTreeData.event;
+    readonly onDidChangeTreeData: vscode.Event<SnippetElement | undefined | null | void> = this._onDidChangeTreeData.event;
     public treeExpandList: SnippetElement[];
 
     /**
@@ -65,6 +65,7 @@ export class SnippetsProvider
 
     // Element 列表
     _getChildren(element?: SnippetElement): SnippetElement[] {
+        // 获取父级节点路径
         let folderPath: string;
         if (element) {
             folderPath = element.fullPath;
@@ -76,6 +77,7 @@ export class SnippetsProvider
         const tree: SnippetElement[] = [];
         const _this = this;
 
+        // 获取当前节点的子节点 目录/文件
         let folderList = resFolder.filter(
             (fileName) => fs.lstatSync(path.resolve(folderPath, fileName)).isDirectory() && !fileName.startsWith('.')
         );
@@ -83,10 +85,14 @@ export class SnippetsProvider
 
         folderList.forEach(function (fileName: any) {
             const fullPath = path.resolve(folderPath, fileName);
+
             if (_this.viewTreeMode) {
+                // 树状 直接追加
                 tree.push(_this._getTreeElement(fullPath, element));
             } else {
-                _this._getChildren(element);
+                // 展开狀 接着遍历
+                // 需要重新创建Element, 因为默认展开狀是传入root
+                _this._getChildren(_this._getTreeElement(fullPath, element));
             }
         });
 
@@ -98,7 +104,7 @@ export class SnippetsProvider
                 _this.treeExpandList.push(_this._getTreeElement(fullPath, element));
             }
         });
-        if (_this.viewTreeMode) {
+        if (this.viewTreeMode) {
             return tree;
         } else {
             return this.treeExpandList.sort((el1: SnippetElement, el2: SnippetElement) =>
@@ -218,10 +224,8 @@ export class SnippetsProvider
         });
     }
 
-    async refresh(): Promise<void> {
-        this.treeExpandList = [];
-        this.checkRoot();
-        this._onDidChangeTreeData.fire(undefined);
+    refresh(): void {
+        this._onDidChangeTreeData.fire();
     }
 
     init() {
@@ -308,6 +312,7 @@ export class SnippetsProvider
 
     async download() {
         syncs.syncCloud(this, '下载', '本地', 1, this.snippetCatConfig);
+        this.refresh();
     }
 
     openGroup(e: SnippetElement) {
@@ -316,11 +321,9 @@ export class SnippetsProvider
 
     addGroup(e: SnippetElement) {
         this.checkRoot();
-
         let folderPath: string;
 
         // 选中节点就用它的父级文件夹作为目标
-
         if (e) {
             if (fs.statSync(e.fullPath).isDirectory()) {
                 folderPath = e.fullPath;
