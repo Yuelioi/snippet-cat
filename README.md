@@ -1,15 +1,14 @@
 ## 介绍
 
-Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段.
-
+Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段. 当然你也可以拿来做笔记(相当于一个全局的文件夹)
 
 ![介绍](https://cdn.yuelili.com/20220912212928.webp)
 
 ## 功能
 
-- 片段管理,无限层级(文件/文件夹) 
+- 片段管理,无限层级(文件/文件夹)
 - 两种视图:支持树状 所有文件平铺
-- 支持同步(webdav/github/gitee)
+- 支持同步(github/gitee)
 - 函数大纲/markdown二级标题
 - 一键储存代码片段
 - 多语言支持
@@ -17,7 +16,7 @@ Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段.
 ## 亮点
 
 - 片段文件后缀 是基于上一次新建文件的后缀
-- 支持不同工作环境同步文件夹信息,方便公司家里同步 {机器1mac:片段路径1,机器2mac:片段路径2} 
+- 支持不同工作环境同步文件夹信息,方便公司家里同步
 
 ## 无法安装?
 
@@ -41,15 +40,9 @@ Snippet Cat 是一款 VSCODE 拓展,用于管理代码片段.
 - 如果没有您的语言 请pr
 - 如果我的规则写错了 请pr
 
-## DOING
-
-- 搜索
-- 排序(多种排序)
-- 一键调用代码片段
-
 ## 大纲书写规格
 
-```
+```txt
 @start
 @name:your function name
 @description: your function description
@@ -66,20 +59,13 @@ markdown暂时只支持二级标题,而且不支持单击跳转,我不会写~
 
 `## your title`
 
+## 如何github同步
 
-## webdav 同步逻辑
+1. 打开你的存储文件夹
 
-上传:直接覆盖云端所有内容.如果本地没有的文件,但是云端有 => 云端的会被删除, 即使云端文件较新,也会覆盖云端!
+2. 先初始化仓库(在本地打开git base操作 / 在vscode里用git工具发布 ★推荐★)
 
-下传:直接覆盖本地所有内容,如果云端没有的文件,但是本地有 => 本地的会被删除, 即使本地文件较新,也会覆盖本地!
-
-本地云端都有,且修改日期一致,则跳过同步
-
-## github同步
-
-先初始化仓库(在本地打开git base操作)
-
-```
+```cmd
 echo "# snippets" >> README.md
 git init
 git add README.md
@@ -89,8 +75,9 @@ git remote add origin git@github.com:你的git仓库
 git push -u origin main
 ```
 
-创建忽略设置文件 .gitignore (以下是忽略"点"开头的文件与文件夹)
-```
+3.创建忽略设置文件 .gitignore (以下是忽略"点"开头的文件与文件夹)
+
+```cmd
 .*
 ```
 
@@ -100,5 +87,7 @@ git push -u origin main
 
 %time : 代表当前时间戳 yyyymmddHHMMSSms
 
-%待续
+## DOING
 
+- 搜索
+- AST分析代码

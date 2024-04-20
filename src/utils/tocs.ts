@@ -1,19 +1,6 @@
-export class TOCElement {
-    name: string;
-    description: string;
-    line: number;
-    length: number;
-    constructor(name: string, description: string, line: number, length: number) {
-        {
-            this.name = name;
-            this.description = description;
-            this.line = line;
-            this.length = length;
-        }
-    }
-}
+import { TOCElement } from '../models/toc';
 
-function getRegContens(reg: RegExp, content: string) {
+function getRegContents(reg: RegExp, content: string) {
     let res = [];
     let m;
     while ((m = reg.exec(content)) !== null) {
@@ -33,8 +20,8 @@ export function getFunInfo(documentText: string) {
     const regSpace = /(.+@end\s)(.*\s|\s)*?.*@start/gm;
 
     mStart = regStart.exec(documentText) !== null ? (regStart.exec(documentText) as any)[0] : '';
-    mContent = getRegContens(regContent, documentText);
-    mSpace = getRegContens(regSpace, documentText);
+    mContent = getRegContents(regContent, documentText);
+    mSpace = getRegContents(regSpace, documentText);
 
     let rrr = [];
     const sLineNumber = mStart.split('\n').length;
@@ -51,14 +38,7 @@ export function getFunInfo(documentText: string) {
         name = name === null ? `未命名函数 ${i + 1}` : name[0];
         des = des === null ? `暂无描述` : des[0];
         // + 2 是去掉2行注释, -4是去掉2行注释和首尾标记
-        rrr.push(
-            new TOCElement(
-                name,
-                des,
-                sLineNumber + contentLineNumber + spaceLineNumber + 2,
-                currentLineNumbers - 4
-            )
-        );
+        rrr.push(new TOCElement(name, des, sLineNumber + contentLineNumber + spaceLineNumber + 2, currentLineNumbers - 4));
         contentLineNumber += currentLineNumbers;
         spaceLineNumber += ms === undefined ? 0 : ms.split('\n').length - 2;
     }
@@ -67,7 +47,7 @@ export function getFunInfo(documentText: string) {
 
 export function getMarkdownInfo(documentText: string) {
     const regMarkdown = /(?<=(^##)\s).*/gm;
-    let mRes = getRegContens(regMarkdown, documentText);
+    let mRes = getRegContents(regMarkdown, documentText);
     let rrr = <any>[];
     mRes.forEach((ma) => {
         rrr.push(new TOCElement(ma, ma, 1, 1));

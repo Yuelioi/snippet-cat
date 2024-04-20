@@ -1,408 +1,408 @@
 {
-  "abap": {
-    "ext": "abap",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "bat": {
-    "ext": "bat",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": "::"
-  },
-  "bibtex": {
-    "ext": "bib",
-    "comments-start": "@Comment={",
-    "comments-split": " ",
-    "comments-end": "}",
-    "comments-oneline": "%"
-  },
-  "clojure": {
-    "ext": "clj",
-    "comments-start": "(comment",
-    "comments-split": " ",
-    "comments-end": ")",
-    "comments-oneline": ";;"
-  },
-  "coffeescript": {
-    "ext": "coffee",
-    "comments-start": "###",
-    "comments-split": "#",
-    "comments-end": "###",
-    "comments-oneline": "#"
-  },
-  "c": {
-    "ext": "c",
-    "comments-start": "/**",
-    "comments-end": " */",
-    "comments-split": " *",
-    "comments-oneline": "//"
-  },
-  "cpp": {
-    "ext": "cpp",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "csharp": {
-    "ext": "cs",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "cuda-cpp": {
-    "ext": "cpp",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "css": {
-    "ext": "css",
-    "comments-start": "/*",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": ""
-  },
-  "diff": {
-    "ext": "diff",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "dockerfile": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "fsharp": {
-    "ext": "fs",
-    "comments-start": "(*",
-    "comments-split": " *",
-    "comments-end": "*)",
-    "comments-oneline": "///"
-  },
-  "git-rebase": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "go": {
-    "ext": "go",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "groovy": {
-    "ext": "groovy",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "handlebars": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "haml": {
-    "ext": "haml",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "html": {
-    "ext": "html",
-    "comments-start": "<!--",
-    "comments-split": " ",
-    "comments-end": "-->",
-    "comments-oneline": ""
-  },
-  "ini": {
-    "ext": "ini",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ";"
-  },
-  "java": {
-    "ext": "java",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "javascript": {
-    "ext": "js",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "javascriptreact": {
-    "ext": "js",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "json": {
-    "ext": "json",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "jsonc": {
-    "ext": "jsonc",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "latex": {
-    "ext": "tex",
-    "comments-start": "\\begin{comment} ",
-    "comments-split": "  %",
-    "comments-end": "\\end{comment} ",
-    "comments-oneline": ""
-  },
-  "less": {
-    "ext": "less",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "lua": {
-    "ext": "lua",
-    "comments-start": "--[[",
-    "comments-split": " ",
-    "comments-end": "]]--",
-    "comments-oneline": ""
-  },
-  "makefile": {
-    "ext": "",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "markdown": {
-    "ext": "md",
-    "comments-start": "<!--",
-    "comments-split": " ",
-    "comments-end": "-->",
-    "comments-oneline": "[//]: #"
-  },
-  "objective-c": {
-    "ext": "c",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "objective-cpp": {
-    "ext": "cpp",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "perl": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "php": {
-    "ext": "php",
-    "comments-start": "/**",
-    "comments-split": " *",
-    "comments-end": " */",
-    "comments-oneline": "//"
-  },
-  "plaintext": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "powershell": {
-    "ext": "ps1",
-    "comments-start": "<#",
-    "comments-split": " #",
-    "comments-end": "#>",
-    "comments-oneline": "#"
-  },
-  "pug": {
-    "ext": "pug",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "python": {
-    "ext": "py",
-    "comments-start": "\"\"\"",
-    "comments-split": "  :",
-    "comments-end": "\"\"\"",
-    "comments-oneline": "#"
-  },
-  "r": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": "#"
-  },
-  "razor": {
-    "ext": "razor",
-    "comments-start": "@*",
-    "comments-split": " *",
-    "comments-end": "*@",
-    "comments-oneline": ""
-  },
-  "ruby": {
-    "ext": "rb",
-    "comments-start": "=begin",
-    "comments-split": "=end",
-    "comments-end": " ",
-    "comments-oneline": "#"
-  },
-  "rust": {
-    "ext": "rs",
-    "comments-start": "/*",
-    "comments-split": " *",
-    "comments-end": "*/",
-    "comments-oneline": "//"
-  },
-  "scss": {
-    "ext": "scss",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "shaderlab": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "shellscript": {
-    "ext": "sh",
-    "comments-start": ": '",
-    "comments-split": " ",
-    "comments-end": "'",
-    "comments-oneline": "#"
-  },
-  "slim": {
-    "ext": "txt",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "sql": {
-    "ext": "sql",
-    "comments-start": "/*",
-    "comments-split": " *",
-    "comments-end": "*/",
-    "comments-oneline": "--"
-  },
-  "stylus": {
-    "ext": "styl",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "swift": {
-    "ext": "swift",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "typescript": {
-    "ext": "ts",
-    "comments-start": "/*",
-    "comments-split": " *",
-    "comments-end": "*/",
-    "comments-oneline": "//"
-  },
-  "typescriptreact": {
-    "ext": "ts",
-    "comments-start": "/*",
-    "comments-split": " *",
-    "comments-end": "*/",
-    "comments-oneline": "//"
-  },
-  "tex": {
-    "ext": "tex",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": ""
-  },
-  "vb": {
-    "ext": "vb",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": "'"
-  },
-  "vue": {
-    "ext": "vue",
-    "comments-start": "/*",
-    "comments-split": " *",
-    "comments-end": "*/",
-    "comments-oneline": "//"
-  },
-  "vue-html": {
-    "ext": "vue",
-    "comments-start": "<!--",
-    "comments-split": " ",
-    "comments-end": "-->",
-    "comments-oneline": ""
-  },
-  "xml": {
-    "ext": "xml",
-    "comments-start": "<!--",
-    "comments-split": " ",
-    "comments-end": "-->",
-    "comments-oneline": ""
-  },
-  "xsl": {
-    "ext": "xsl",
-    "comments-start": "<!--",
-    "comments-split": " ",
-    "comments-end": "-->",
-    "comments-oneline": ""
-  },
-  "yaml": {
-    "ext": "yaml",
-    "comments-start": "",
-    "comments-split": "",
-    "comments-end": "",
-    "comments-oneline": "#"
-  }
+    "abap": {
+        "ext": "abap",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "bat": {
+        "ext": "bat",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": "::"
+    },
+    "bibtex": {
+        "ext": "bib",
+        "comments-start": "@Comment={",
+        "comments-split": " ",
+        "comments-end": "}",
+        "comments-oneline": "%"
+    },
+    "clojure": {
+        "ext": "clj",
+        "comments-start": "(comment",
+        "comments-split": " ",
+        "comments-end": ")",
+        "comments-oneline": ";;"
+    },
+    "coffeescript": {
+        "ext": "coffee",
+        "comments-start": "###",
+        "comments-split": "#",
+        "comments-end": "###",
+        "comments-oneline": "#"
+    },
+    "c": {
+        "ext": "c",
+        "comments-start": "/**",
+        "comments-end": " */",
+        "comments-split": " *",
+        "comments-oneline": "//"
+    },
+    "cpp": {
+        "ext": "cpp",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "csharp": {
+        "ext": "cs",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "cuda-cpp": {
+        "ext": "cpp",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "css": {
+        "ext": "css",
+        "comments-start": "/*",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": ""
+    },
+    "diff": {
+        "ext": "diff",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "dockerfile": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "fsharp": {
+        "ext": "fs",
+        "comments-start": "(*",
+        "comments-split": " *",
+        "comments-end": "*)",
+        "comments-oneline": "///"
+    },
+    "git-rebase": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "go": {
+        "ext": "go",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "groovy": {
+        "ext": "groovy",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "handlebars": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "haml": {
+        "ext": "haml",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "html": {
+        "ext": "html",
+        "comments-start": "<!--",
+        "comments-split": " ",
+        "comments-end": "-->",
+        "comments-oneline": ""
+    },
+    "ini": {
+        "ext": "ini",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ";"
+    },
+    "java": {
+        "ext": "java",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "javascript": {
+        "ext": "js",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "javascriptreact": {
+        "ext": "js",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "json": {
+        "ext": "json",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "jsonc": {
+        "ext": "jsonc",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "latex": {
+        "ext": "tex",
+        "comments-start": "\\begin{comment} ",
+        "comments-split": "  %",
+        "comments-end": "\\end{comment} ",
+        "comments-oneline": ""
+    },
+    "less": {
+        "ext": "less",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "lua": {
+        "ext": "lua",
+        "comments-start": "--[[",
+        "comments-split": " ",
+        "comments-end": "]]--",
+        "comments-oneline": ""
+    },
+    "makefile": {
+        "ext": "",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "markdown": {
+        "ext": "md",
+        "comments-start": "<!--",
+        "comments-split": " ",
+        "comments-end": "-->",
+        "comments-oneline": "[//]: #"
+    },
+    "objective-c": {
+        "ext": "c",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "objective-cpp": {
+        "ext": "cpp",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "perl": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "php": {
+        "ext": "php",
+        "comments-start": "/**",
+        "comments-split": " *",
+        "comments-end": " */",
+        "comments-oneline": "//"
+    },
+    "plaintext": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "powershell": {
+        "ext": "ps1",
+        "comments-start": "<#",
+        "comments-split": " #",
+        "comments-end": "#>",
+        "comments-oneline": "#"
+    },
+    "pug": {
+        "ext": "pug",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "python": {
+        "ext": "py",
+        "comments-start": "\"\"\"",
+        "comments-split": "  :",
+        "comments-end": "\"\"\"",
+        "comments-oneline": "#"
+    },
+    "r": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": "#"
+    },
+    "razor": {
+        "ext": "razor",
+        "comments-start": "@*",
+        "comments-split": " *",
+        "comments-end": "*@",
+        "comments-oneline": ""
+    },
+    "ruby": {
+        "ext": "rb",
+        "comments-start": "=begin",
+        "comments-split": "=end",
+        "comments-end": " ",
+        "comments-oneline": "#"
+    },
+    "rust": {
+        "ext": "rs",
+        "comments-start": "/*",
+        "comments-split": " *",
+        "comments-end": "*/",
+        "comments-oneline": "//"
+    },
+    "scss": {
+        "ext": "scss",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "shaderlab": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "shellscript": {
+        "ext": "sh",
+        "comments-start": ": '",
+        "comments-split": " ",
+        "comments-end": "'",
+        "comments-oneline": "#"
+    },
+    "slim": {
+        "ext": "txt",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "sql": {
+        "ext": "sql",
+        "comments-start": "/*",
+        "comments-split": " *",
+        "comments-end": "*/",
+        "comments-oneline": "--"
+    },
+    "stylus": {
+        "ext": "styl",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "swift": {
+        "ext": "swift",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "typescript": {
+        "ext": "ts",
+        "comments-start": "/*",
+        "comments-split": " *",
+        "comments-end": "*/",
+        "comments-oneline": "//"
+    },
+    "typescriptreact": {
+        "ext": "ts",
+        "comments-start": "/*",
+        "comments-split": " *",
+        "comments-end": "*/",
+        "comments-oneline": "//"
+    },
+    "tex": {
+        "ext": "tex",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": ""
+    },
+    "vb": {
+        "ext": "vb",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": "'"
+    },
+    "vue": {
+        "ext": "vue",
+        "comments-start": "/*",
+        "comments-split": " *",
+        "comments-end": "*/",
+        "comments-oneline": "//"
+    },
+    "vue-html": {
+        "ext": "vue",
+        "comments-start": "<!--",
+        "comments-split": " ",
+        "comments-end": "-->",
+        "comments-oneline": ""
+    },
+    "xml": {
+        "ext": "xml",
+        "comments-start": "<!--",
+        "comments-split": " ",
+        "comments-end": "-->",
+        "comments-oneline": ""
+    },
+    "xsl": {
+        "ext": "xsl",
+        "comments-start": "<!--",
+        "comments-split": " ",
+        "comments-end": "-->",
+        "comments-oneline": ""
+    },
+    "yaml": {
+        "ext": "yaml",
+        "comments-start": "",
+        "comments-split": "",
+        "comments-end": "",
+        "comments-oneline": "#"
+    }
 }

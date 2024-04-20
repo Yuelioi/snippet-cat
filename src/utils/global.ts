@@ -23,6 +23,7 @@ export function runCMD(runPath: string, cmd: string, srcThis: any) {
     try {
         execSync(cmdToProgress, { cwd: runPath });
         srcThis.refresh();
+        return true;
     } catch (e: any) {
         vscode.window.showErrorMessage(e);
     }
@@ -55,25 +56,25 @@ export function getTimeStamp() {
     );
 }
 
-/**
- * @description: 备份文件
- * @param stockPath :储存文件根目录
- */
-export function recoveryStock(stockPath: string) {
-    const timeStamp = getTimeStamp();
-    const tempFolder = path.join(stockPath, '..', timeStamp);
-    const recoveryPath = path.join(stockPath, '.recovery');
-    if (!fs.existsSync(recoveryPath)) {
-        fs.mkdirSync(recoveryPath);
+export function getFiles(dir: string, includeDir: boolean = true, files: string[] = []) {
+    const fileList: string[] = fs.readdirSync(dir);
+    for (const file of fileList) {
+        const name = `${dir}/${file}`;
+        if (file.startsWith('.')) {
+            continue;
+        }
+        if (fs.statSync(name).isDirectory()) {
+            if (includeDir) {
+                files.push(name);
+                getFiles(name, includeDir, files);
+            } else {
+                getFiles(name, includeDir, files);
+            }
+        } else {
+            files.push(name);
+        }
     }
-    try {
-        fse.copySync(stockPath, tempFolder);
-    } catch (err) {
-        console.error(err);
-    }
-
-    fs.rmSync(path.join(tempFolder, '.recovery'), { recursive: true });
-    fse.moveSync(tempFolder, path.join(recoveryPath, timeStamp));
+    return files;
 }
 
 export function addContentToFile(trgPath: string, content: string, srcThis: any) {
@@ -100,9 +101,9 @@ export async function generateDescription(languageId: string, selContent: string
     let content = '';
 
     if (Object.hasOwn(languageList, languageId)) {
-        const lanInfo = languageList[languageId];
+        const langInfo = languageList[languageId];
 
-        ext = lanInfo['ext'];
+        ext = langInfo['ext'];
         if (ext !== 'txt' && ext !== 'md') {
             const name =
                 (await vscode.window.showInputBox({
@@ -116,18 +117,18 @@ export async function generateDescription(languageId: string, selContent: string
                     value: `暂无描述`,
                     valueSelection: [0, 4]
                 })) || '暂无描述';
-            if (lanInfo['comments-start']) {
-                content = `${lanInfo['comments-start']}\n${lanInfo['comments-split']} @start\n${lanInfo['comments-split']} @name:${name}\n${lanInfo['comments-split']} @description::${description}\n${lanInfo['comments-end']}`;
+            if (langInfo['comments-start']) {
+                content = `${langInfo['comments-start']}\n${langInfo['comments-split']} @start\n${langInfo['comments-split']} @name:${name}\n${langInfo['comments-split']} @description::${description}\n${langInfo['comments-end']}`;
             } else {
-                content = `${lanInfo['comments-oneline']} @start\n${lanInfo['comments-oneline']} @name:${name}\n${lanInfo['comments-oneline']} @description::${description}`;
+                content = `${langInfo['comments-oneline']} @start\n${langInfo['comments-oneline']} @name:${name}\n${langInfo['comments-oneline']} @description::${description}`;
             }
 
             content += '\n' + selContent + '\n';
 
-            if (lanInfo['comments-oneline']) {
-                content += `${lanInfo['comments-oneline']} @end`;
+            if (langInfo['comments-oneline']) {
+                content += `${langInfo['comments-oneline']} @end`;
             } else {
-                content += `${lanInfo['comments-start']} @end ${lanInfo['comments-end']}`;
+                content += `${langInfo['comments-start']} @end ${langInfo['comments-end']}`;
             }
         }
     }

@@ -4,24 +4,39 @@ import * as path from 'path';
 import * as utils from './utils/global';
 import * as syncs from './utils/syncs';
 
+import { SnippetElement, SnippetItem } from './models/snippet';
+
 export class SnippetsProvider
-    implements
-        vscode.TreeDataProvider<SnippetElement>,
-        vscode.TreeDragAndDropController<SnippetElement>
+    implements vscode.TreeDataProvider<SnippetElement>, vscode.TreeDragAndDropController<SnippetElement>
 {
     dropMimeTypes = ['application/vnd.code.tree.snippet-cat-view'];
     dragMimeTypes = ['text/uri-list'];
-    private _onDidChangeTreeData: vscode.EventEmitter<SnippetElement | undefined> =
-        new vscode.EventEmitter<SnippetElement | undefined>();
-    readonly onDidChangeTreeData: vscode.Event<SnippetElement | undefined> =
-        this._onDidChangeTreeData.event;
+    private _onDidChangeTreeData: vscode.EventEmitter<SnippetElement | undefined> = new vscode.EventEmitter<
+        SnippetElement | undefined
+    >();
+    readonly onDidChangeTreeData: vscode.Event<SnippetElement | undefined> = this._onDidChangeTreeData.event;
     public treeExpandList: SnippetElement[];
-    public viewTreeMode: boolean;
+
+    /**
+     * 树视图 / 展开视图
+     */
+    public viewTreeMode: boolean; // 树视图 / 展开视图
+
+    /**
+     * 储存文件根目录
+     */
     stockPath = '';
+
+    /**
+     * 是否添加储存目录
+     */
     hasRoot = false;
-    view: any;
+    view: vscode.TreeView<SnippetElement>;
+
+    /**
+     * 插件配置项
+     */
     snippetCatConfig: any;
-    fileInfoList: any;
 
     constructor(context: vscode.ExtensionContext) {
         const snippetTreeView = vscode.window.createTreeView('snippet-cat-view', {
@@ -34,91 +49,101 @@ export class SnippetsProvider
         context.subscriptions.push(snippetTreeView);
         this.view = snippetTreeView;
         this.treeExpandList = [];
-        this.viewTreeMode = true;
+        this.viewTreeMode = true; // 树视图 / 展开视图
         this.init();
-        this.fileInfoList = {};
     }
 
-    getChildren(element: SnippetElement): Thenable<SnippetElement[]> {
+    /**
+     * 必须实现的方法
+     * 用于获取节点子级
+     */
+    getChildren(element?: SnippetElement): Thenable<SnippetElement[] | undefined> {
         this.checkRoot();
-        return Promise.resolve(this._getChildren(element ? element.fullPath : this.stockPath));
-    }
 
-    public getTreeItem(element: SnippetElement): vscode.TreeItem {
-        this.checkRoot();
-        const treeItem = this._getTreeItem(element.fullPath);
-        return treeItem;
-    }
-
-    // getParent(element:SnippetElement){
-    //   return this._getTreeElement(path.dirname(element.fullPath));
-    // }
-
-    _getTreeItem(fullPath: string): SnippetItem {
-        const treeElement = this._getTreeElement(fullPath);
-        if (!treeElement.isDir) {
-            try {
-                this.fileInfoList['hh'] = 1;
-                console.log(path.parse(treeElement.fullPath));
-                this.fileInfoList[path.parse(treeElement.fullPath).name] = treeElement;
-            } catch (e) {
-                console.log(e);
-            }
-        }
-
-        return new SnippetItem(
-            treeElement,
-            treeElement.basename,
-            treeElement.isDir
-                ? vscode.TreeItemCollapsibleState.Collapsed
-                : vscode.TreeItemCollapsibleState.None
-        );
-    }
-
-    _getTreeElement(fullPath: string): SnippetElement {
-        return new SnippetElement(fullPath);
+        return Promise.resolve(this._getChildren(element));
     }
 
     // Element 列表
-    _getChildren(folderPath: string): SnippetElement[] {
+    _getChildren(element?: SnippetElement): SnippetElement[] {
+        let folderPath: string;
+        if (element) {
+            folderPath = element.fullPath;
+        } else {
+            folderPath = this.stockPath;
+        }
+
         const resFolder = fs.readdirSync(folderPath);
         const tree: SnippetElement[] = [];
         const _this = this;
 
         let folderList = resFolder.filter(
-            (fileName) =>
-                fs.lstatSync(path.resolve(folderPath, fileName)).isDirectory() &&
-                !fileName.startsWith('.')
+            (fileName) => fs.lstatSync(path.resolve(folderPath, fileName)).isDirectory() && !fileName.startsWith('.')
         );
-        let fileList = resFolder.filter(
-            (fileName: string) => !folderList.includes(fileName) && !fileName.startsWith('.')
-        );
+        let fileList = resFolder.filter((fileName: string) => !folderList.includes(fileName) && !fileName.startsWith('.'));
 
         folderList.forEach(function (fileName: any) {
             const fullPath = path.resolve(folderPath, fileName);
             if (_this.viewTreeMode) {
-                tree.push(_this._getTreeElement(fullPath));
+                tree.push(_this._getTreeElement(fullPath, element));
+            } else {
+                _this._getChildren(element);
             }
-            _this._getChildren(fullPath);
         });
 
         fileList.forEach(function (fileName: any) {
             const fullPath = path.resolve(folderPath, fileName);
             if (_this.viewTreeMode) {
-                tree.push(_this._getTreeElement(fullPath));
+                tree.push(_this._getTreeElement(fullPath, element));
             } else {
-                _this.treeExpandList.push(_this._getTreeElement(fullPath));
+                _this.treeExpandList.push(_this._getTreeElement(fullPath, element));
             }
         });
         if (_this.viewTreeMode) {
             return tree;
         } else {
             return this.treeExpandList.sort((el1: SnippetElement, el2: SnippetElement) =>
-                path.extname(el1.fullPath).toUpperCase() < path.extname(el2.fullPath).toUpperCase()
-                    ? -1
-                    : 1
+                path.extname(el1.fullPath).toUpperCase() < path.extname(el2.fullPath).toUpperCase() ? -1 : 1
             );
         }
+    }
+
+    public getTreeItem(element: SnippetElement): vscode.TreeItem {
+        this.checkRoot();
+        return this._getTreeItem(element.fullPath, element);
+    }
+
+    getParent(element: SnippetElement): vscode.ProviderResult<SnippetElement> {
+        return element.parent;
+    }
+
+    _getItem(fullPath: string): SnippetElement {
+        let node: SnippetElement | undefined;
+
+        for (let item of this.treeExpandList) {
+            if (fullPath === item.fullPath) {
+                node = item;
+            }
+        }
+
+        if (node === undefined) {
+            return new SnippetElement(fullPath);
+        } else {
+            return node;
+        }
+    }
+
+    _getTreeItem(fullPath: string, element: SnippetElement): SnippetItem {
+        const treeElement = this._getTreeElement(fullPath, element);
+
+        return new SnippetItem(
+            treeElement,
+            treeElement.basename,
+            treeElement.isDir ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None
+        );
+    }
+
+    _getTreeElement(fullPath: string, element?: SnippetElement): SnippetElement {
+        return new SnippetElement(fullPath, element);
     }
 
     // Drag and drop
@@ -131,18 +156,14 @@ export class SnippetsProvider
         if (!transferItem || !this.viewTreeMode) {
             return;
         }
-        const srcTreeElemtents: SnippetElement[] = transferItem.value;
+        const srcTreeElements: SnippetElement[] = transferItem.value;
 
-        srcTreeElemtents.forEach((el) => {
-            fs.rename(
-                el.fullPath,
-                path.join(target ? target.dirPath : this.stockPath, el.basename),
-                function (err) {
-                    if (err) {
-                        throw err;
-                    }
+        srcTreeElements.forEach((el) => {
+            fs.rename(el.fullPath, path.join(target ? target.dirPath : this.stockPath, el.basename), function (err) {
+                if (err) {
+                    throw err;
                 }
-            );
+            });
         });
 
         this.refresh();
@@ -153,10 +174,7 @@ export class SnippetsProvider
         treeDataTransfer: vscode.DataTransfer,
         token: vscode.CancellationToken
     ): Promise<void> {
-        treeDataTransfer.set(
-            'application/vnd.code.tree.snippet-cat-view',
-            new vscode.DataTransferItem(source)
-        );
+        treeDataTransfer.set('application/vnd.code.tree.snippet-cat-view', new vscode.DataTransferItem(source));
     }
 
     public setTreeView(element: any) {
@@ -182,20 +200,18 @@ export class SnippetsProvider
         const _this = this;
         const options: vscode.OpenDialogOptions = {
             canSelectMany: false,
-            openLabel: 'Select',
+            openLabel: 'Select Folder',
             canSelectFiles: false,
             canSelectFolders: true
         };
 
         await vscode.window.showOpenDialog(options).then((fileUri) => {
             if (fileUri && fileUri[0]) {
-                this.snippetCatConfig
-                    .update('stockPath', fileUri[0].fsPath, vscode.ConfigurationTarget.Global)
-                    .then(() => {
-                        _this.stockPath = fileUri[0].fsPath;
-                        _this.hasRoot = true;
-                        _this.refresh();
-                    });
+                this.snippetCatConfig.update('stockPath', fileUri[0].fsPath, vscode.ConfigurationTarget.Global).then(() => {
+                    _this.stockPath = fileUri[0].fsPath;
+                    _this.hasRoot = true;
+                    _this.refresh();
+                });
             } else {
                 vscode.window.showInformationMessage('用户取消设置');
             }
@@ -203,6 +219,8 @@ export class SnippetsProvider
     }
 
     async refresh(): Promise<void> {
+        this.treeExpandList = [];
+        this.checkRoot();
         this._onDidChangeTreeData.fire(undefined);
     }
 
@@ -238,19 +256,49 @@ export class SnippetsProvider
     }
 
     // TODO
-    search() {
-        this.view.reveal();
-        this.view.reveal(this._getTreeElement('E:\\Project\\Snippet Cat\\PHP\\1.PHP'), {
-            select: true,
-            focus: true,
-            expand: true
-        });
-        // this.treeExpandList.reveal(element, { select: true, focus: true, expand: true });
+    async search() {
+        let picks: string[] = [];
+
+        for (const node of utils.getFiles(this.stockPath, false)) {
+            picks.push(node);
+        }
+
+        let key = await vscode.window.showQuickPick(picks);
+
+        if (key) {
+            await this.view.reveal(this._getTreeElement(key), {
+                select: true,
+                focus: true,
+                expand: true
+            });
+        }
+    }
+
+    // 检查是否为最后一个条目(用于删除验证)
+    iskLastNode() {
+        const files = utils.getFiles(this.stockPath);
+        // 如果没有文件, 则创建一个初始文件
+        if (files.length === 1) {
+            return true;
+        }
+
+        return false;
     }
 
     checkRoot() {
         if (!this.hasRoot) {
             throw new Error('请先添加根目录');
+        }
+        // 如果有根目录 检查下有没有文件/文件夹 否则无法生成node
+        const files = utils.getFiles(this.stockPath);
+        // 如果没有文件, 则创建一个初始文件
+        if (files.length === 0) {
+            var writeStream = fs.createWriteStream(path.join(this.stockPath, 'Getting Start.md'));
+            writeStream.write('欢迎使用Snippet Cat\n');
+            writeStream.write('你可以用它来储存代码片段\n');
+            writeStream.write('也可以用它来写日记/做笔记\n');
+            writeStream.write('全局的 就很方便\n');
+            writeStream.end();
         }
     }
 
@@ -268,7 +316,20 @@ export class SnippetsProvider
 
     addGroup(e: SnippetElement) {
         this.checkRoot();
-        let folderPath = e ? e.fullPath : this.stockPath;
+
+        let folderPath: string;
+
+        // 选中节点就用它的父级文件夹作为目标
+
+        if (e) {
+            if (fs.statSync(e.fullPath).isDirectory()) {
+                folderPath = e.fullPath;
+            } else {
+                folderPath = path.dirname(e.fullPath);
+            }
+        } else {
+            folderPath = this.stockPath;
+        }
 
         let iter = this.handleSnippets('请输入文件夹名', '', [0, 0]);
         iter.next().then(
@@ -290,6 +351,11 @@ export class SnippetsProvider
     }
 
     deleteGroup(e: SnippetElement) {
+        if (this.iskLastNode()) {
+            vscode.window.showWarningMessage('请至少保留一个项目');
+            return;
+        }
+
         let iter = this.handleSnippets('确认删除', '确认', [0, 2]);
         iter.next().then(
             (data: any) => {
@@ -327,21 +393,38 @@ export class SnippetsProvider
         iter.next().then(
             (data: any) => {
                 let ext = data.value.split('.');
+
                 ext = ext.length > 1 ? ext[1] : '';
 
-                iter.next([fs.writeFileSync, path.join(e.fullPath, data.value), '']);
+                let folderPath: string;
 
-                this.snippetCatConfig
-                    .update('lastFileExt', ext, vscode.ConfigurationTarget.Global)
-                    .then(() => {
-                        this.snippetCatConfig = vscode.workspace.getConfiguration('snippet-cat');
-                    });
+                // 选中节点就用它的父级文件夹作为目标
+
+                if (e) {
+                    if (fs.statSync(e.fullPath).isDirectory()) {
+                        folderPath = e.fullPath;
+                    } else {
+                        folderPath = path.dirname(e.fullPath);
+                    }
+                } else {
+                    folderPath = this.stockPath;
+                }
+
+                iter.next([fs.writeFileSync, path.join(folderPath, data.value), '']);
+
+                this.snippetCatConfig.update('lastFileExt', ext, vscode.ConfigurationTarget.Global).then(() => {
+                    this.snippetCatConfig = vscode.workspace.getConfiguration('snippet-cat');
+                });
             },
             (err: any) => console.log(err)
         );
     }
 
     deleteSnippet(e: SnippetElement) {
+        if (this.iskLastNode()) {
+            vscode.window.showWarningMessage('请至少保留一个项目');
+            return;
+        }
         let iter = this.handleSnippets('确认删除', '确认', [0, 2]);
         iter.next().then(
             (data: any) => {
@@ -361,81 +444,5 @@ export class SnippetsProvider
             },
             (err: any) => console.log(err)
         );
-    }
-}
-
-class SnippetElement {
-    basename: string;
-    isDir: boolean;
-    fullPath: string;
-    dirPath: string;
-    constructor(fullPath: string) {
-        this.fullPath = fullPath;
-        this.basename = path.basename(fullPath);
-        this.isDir = fs.lstatSync(fullPath).isDirectory();
-        this.dirPath = this.isDir ? fullPath : path.dirname(fullPath);
-    }
-}
-
-class SnippetItem extends vscode.TreeItem {
-    constructor(
-        element: SnippetElement,
-        label: string,
-        collapsibleState: vscode.TreeItemCollapsibleState
-    ) {
-        super(label, collapsibleState);
-        this.label = element.basename;
-        this.id = this.tooltip = element.fullPath;
-        this.contextValue = element.isDir ? 'Group' : 'Snippet';
-
-        let icon = 'folder';
-        if (this.contextValue === 'Snippet') {
-            this.command = {
-                title: 'Item Command',
-                command: 'snippet-cat.main.click',
-                arguments: [element.fullPath]
-            };
-            icon = path.extname(element.fullPath).replace('.', '');
-
-            if (
-                !fs.existsSync(
-                    path.join(
-                        __filename,
-                        '..',
-                        '..',
-                        'media',
-                        'icons',
-                        'files',
-                        'dark',
-                        `${icon}.svg`
-                    )
-                )
-            ) {
-                icon = 'file';
-            }
-        }
-
-        this.iconPath = {
-            light: path.join(
-                __filename,
-                '..',
-                '..',
-                'media',
-                'icons',
-                'files',
-                'light',
-                `${icon}.svg`
-            ),
-            dark: path.join(
-                __filename,
-                '..',
-                '..',
-                'media',
-                'icons',
-                'files',
-                'dark',
-                `${icon}.svg`
-            )
-        };
     }
 }

@@ -1,20 +1,21 @@
 {
     "name": "snippet-cat",
     "displayName": "Snippet Cat",
-    "description": "Snippet Collections",
-    "version": "0.0.8",
+    "description": "Snippets/Note Collections",
+    "version": "0.0.10",
     "publisher": "yuelili",
     "icon": "media/logo.png",
     "sponsor": {
         "url": "https://www.yuelili.com"
     },
     "engines": {
-        "vscode": "^1.71.0"
+        "vscode": "^1.75.0"
     },
     "categories": [
         "Snippets"
     ],
     "main": "./dist/extension.js",
+    "activationEvents": [],
     "contributes": {
         "viewsWelcome": [
             {
@@ -38,12 +39,6 @@
                     "name": "%snippet-cat-view-name%",
                     "icon": "media/cat.svg",
                     "contextualTitle": "Explorer"
-                },
-                {
-                    "id": "snippet-cat-outline",
-                    "name": "%snippet-cat-outline-name%",
-                    "icon": "media/cat.svg",
-                    "contextualTitle": "Outline"
                 }
             ]
         },
@@ -59,12 +54,10 @@
                     "type": "string",
                     "default": "github",
                     "enum": [
-                        "github",
-                        "webdav"
+                        "github"
                     ],
                     "enumDescriptions": [
-                        "%snippet-cat.syncModel1%",
-                        "%snippet-cat.syncModel2%"
+                        "%snippet-cat.syncModel1%"
                     ]
                 },
                 "snippet-cat.github": {
@@ -91,40 +84,6 @@
                     ],
                     "additionalProperties": false,
                     "description": "%snippet-cat.github%"
-                },
-                "snippet-cat.webdav": {
-                    "type": "object",
-                    "default": {
-                        "url": "http://xxx",
-                        "username": "",
-                        "password": ""
-                    },
-                    "properties": {
-                        "url": {
-                            "type": "string",
-                            "default": "https://",
-                            "pattern": "(^http[s]?://)(.+)$",
-                            "description": "%snippet-cat.webdav-url%WebDAV的地址"
-                        },
-                        "username": {
-                            "type": "string",
-                            "default": "",
-                            "description": "%snippet-cat.webdav-username%"
-                        },
-                        "password": {
-                            "type": "string",
-                            "default": "",
-                            "pattern": "",
-                            "description": "%snippet-cat.webdav-password%"
-                        }
-                    },
-                    "required": [
-                        "url",
-                        "username",
-                        "password"
-                    ],
-                    "additionalProperties": false,
-                    "description": "%snippet-cat.webdav%"
                 },
                 "snippet-cat.stockPath": {
                     "type": "string",
@@ -252,32 +211,34 @@
                     "group": "navigation@6"
                 },
                 {
-                    "command": "snippet-cat.main.download",
-                    "when": "view == snippet-cat-view",
-                    "group": "navigation@3"
-                },
-                {
-                    "command": "snippet-cat.main.upload",
-                    "when": "view == snippet-cat-view",
-                    "group": "navigation@4"
-                },
-                {
-                    "command": "snippet-cat.main.search",
-                    "when": "view == snippet-cat-view",
-                    "group": "navigation@2"
-                },
-                {
                     "command": "snippet-cat.main.addGroup",
                     "when": "view == snippet-cat-view",
                     "group": "navigation@1"
                 },
                 {
+                    "command": "snippet-cat.main.addSnippet",
+                    "when": "view == snippet-cat-view",
+                    "group": "navigation@2"
+                },
+                {
                     "command": "snippet-cat.main.init",
-                    "when": "view == snippet-cat-view"
+                    "when": "view == snippet-cat-view",
+                    "group": "context@1"
+                },
+                {
+                    "command": "snippet-cat.main.download",
+                    "when": "view == snippet-cat-view",
+                    "group": "context@3"
+                },
+                {
+                    "command": "snippet-cat.main.upload",
+                    "when": "view == snippet-cat-view",
+                    "group": "context@4"
                 },
                 {
                     "command": "snippet-cat.main.addStockPath",
-                    "when": "view == snippet-cat-view"
+                    "when": "view == snippet-cat-view",
+                    "group": "context@2"
                 },
                 {
                     "command": "snippet-cat.outline.refresh",
@@ -335,6 +296,7 @@
     },
     "scripts": {
         "vscode:prepublish": "npm run package",
+        "vscode:package": "vsce package",
         "compile": "webpack",
         "watch": "webpack --watch",
         "package": "webpack --mode production --devtool hidden-source-map",
@@ -366,8 +328,7 @@
     },
     "dependencies": {
         "fs-extra": "^10.1.0",
-        "vscode-nls": "^5.2.0",
-        "webdav": "^4.11.0"
+        "vscode-nls": "^5.2.0"
     },
     "repository": {
         "type": "git",

@@ -1,18 +1,21 @@
-import * as vscode from "vscode";
-import * as path from "path";
+import * as vscode from 'vscode';
+import * as path from 'path';
 
-import { TOCElement, getFunInfo, getMarkdownInfo } from "./utils/tocs";
-import { runSnippet } from "./utils/global";
+import { getFunInfo, getMarkdownInfo } from './utils/tocs';
+import { TOCElement, TOCItem } from './models/toc';
+import { runSnippet } from './utils/global';
 
 export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
-    private _onDidChangeTreeData: vscode.EventEmitter<TOCElement | undefined> = new vscode.EventEmitter<TOCElement | undefined>();
+    private _onDidChangeTreeData: vscode.EventEmitter<TOCElement | undefined> = new vscode.EventEmitter<
+        TOCElement | undefined
+    >();
     readonly onDidChangeTreeData: vscode.Event<TOCElement | undefined> = this._onDidChangeTreeData.event;
     languageID: string | undefined;
     snippetProvider: any;
 
     constructor(context: vscode.ExtensionContext, snippetProvider: any) {
-        const view = vscode.window.createTreeView("snippet-cat-outline", {
-            treeDataProvider: this,
+        const view = vscode.window.createTreeView('snippet-cat-outline', {
+            treeDataProvider: this
         });
 
         this.snippetProvider = snippetProvider;
@@ -32,7 +35,7 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
 
         if (editor) {
             let documentText = editor.document.getText();
-            if (this.languageID === "markdown") {
+            if (this.languageID === 'markdown') {
                 return Promise.resolve(getMarkdownInfo(documentText));
             } else {
                 return Promise.resolve(getFunInfo(documentText));
@@ -75,12 +78,12 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
     async click(element: TOCElement) {
         const editor = <any>vscode.window.activeTextEditor;
         await vscode.commands
-            .executeCommand("revealLine", {
-                at: "top",
-                lineNumber: element.line - 2 < 0 ? element.line : element.line - 2,
+            .executeCommand('revealLine', {
+                at: 'top',
+                lineNumber: element.line - 2 < 0 ? element.line : element.line - 2
             })
             .then(() => {
-                vscode.commands.executeCommand("workbench.action.navigateToLastEditLocation").then(() => {
+                vscode.commands.executeCommand('workbench.action.navigateToLastEditLocation').then(() => {
                     editor.selection = new vscode.Selection(
                         element.line,
                         0,
@@ -104,40 +107,16 @@ export class TOCProvider implements vscode.TreeDataProvider<TOCElement> {
     }
 
     async insertSnippet() {
-        const value = await vscode.window.showQuickPick(["explorer", "search", "scm", "debug", "extensions"], {
-            placeHolder: "Select the view to show when opening a window.",
+        const value = await vscode.window.showQuickPick(['explorer', 'search', 'scm', 'debug', 'extensions'], {
+            placeHolder: 'Select the view to show when opening a window.'
         });
     }
 
     copy(element: TOCElement) {
         this.click(element);
         setTimeout(() => {
-            vscode.commands.executeCommand("editor.action.clipboardCopyAction");
-            vscode.window.showInformationMessage("已复制到剪切板");
+            vscode.commands.executeCommand('editor.action.clipboardCopyAction');
+            vscode.window.showInformationMessage('已复制到剪切板');
         }, 500);
-    }
-}
-
-class TOCItem extends vscode.TreeItem {
-    constructor(element: TOCElement, label: string, collapsibleState: vscode.TreeItemCollapsibleState, languageID: string | undefined) {
-        super(label, collapsibleState);
-        this.label = element.name;
-        this.tooltip = element.description;
-        this.contextValue = "Title";
-
-        let icon = languageID === "markdown" ? "markdown" : "function";
-
-        if (this.contextValue === "Title") {
-            this.command = {
-                title: "Item Command",
-                command: "snippet-cat.outline.click",
-                arguments: [element],
-            };
-        }
-
-        this.iconPath = {
-            light: path.join(__filename, "..", "..", "media", "icons", "interface", "light", `${icon}.svg`),
-            dark: path.join(__filename, "..", "..", "media", "icons", "interface", "dark", `${icon}.svg`),
-        };
     }
 }
