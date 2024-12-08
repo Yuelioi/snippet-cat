@@ -253,13 +253,11 @@ export class SnippetsProvider
     }
 
     click(filePath: string) {
-        var openPath = vscode.Uri.parse('file:///' + filePath.split(`\\`).join(`/`)); //A request file path
-        vscode.workspace.openTextDocument(openPath).then((doc) => {
-            vscode.window.showTextDocument(doc);
-        });
+        var openPath = vscode.Uri.file(filePath);
+        vscode.commands.executeCommand('vscode.open', openPath);
     }
 
-    // TODO
+    // TODO 搜索
     async search() {
         let picks: string[] = [];
 
